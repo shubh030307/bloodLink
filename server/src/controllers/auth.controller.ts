@@ -147,6 +147,7 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    res.status(200).json({
       id: user.id,
       name: user.name,
       email: user.email,
