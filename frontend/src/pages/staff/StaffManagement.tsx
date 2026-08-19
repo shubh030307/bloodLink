@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Search, MapPin, Phone, Building2, Eye, ShieldAlert, Filter, User } from 'lucide-react';
-import api from '../../../services/api';
+import api from '../../services/api';
 
 const StaffManagement = () => {
   const queryClient = useQueryClient();
