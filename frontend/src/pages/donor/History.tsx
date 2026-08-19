@@ -57,11 +57,11 @@ const DonorHistory = () => {
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Donation History</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground">Donation History</h2>
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-gray-500 animate-pulse">Loading your history...</div>
+        <div className="text-center py-10 text-gray-500 dark:text-muted-foreground animate-pulse">Loading your history...</div>
       ) : history.length === 0 ? (
         <div className="glass-card p-10 flex flex-col items-center justify-center text-gray-400">
           <Droplet className="w-16 h-16 mb-4 opacity-50" />
@@ -72,7 +72,7 @@ const DonorHistory = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+                <tr className="bg-gray-50/50 text-gray-500 dark:text-muted-foreground text-sm border-b border-gray-100">
                   <th className="p-4 font-medium">Date</th>
                   <th className="p-4 font-medium">Center</th>
                   <th className="p-4 font-medium">Quantity</th>
@@ -83,12 +83,12 @@ const DonorHistory = () => {
               <tbody className="divide-y divide-gray-100">
                 {history.map((donation) => (
                   <tr key={donation.id} className="hover:bg-white/40 transition-colors">
-                    <td className="p-4 text-sm font-medium text-gray-900 flex items-center">
+                    <td className="p-4 text-sm font-medium text-gray-900 dark:text-foreground flex items-center">
                       <Calendar className="w-4 h-4 mr-2 text-gray-400" />
                       {new Date(donation.collectionDate).toLocaleDateString()}
                     </td>
-                    <td className="p-4 text-sm text-gray-600">{donation.collectionCenter}</td>
-                    <td className="p-4 text-sm text-gray-600">{donation.quantity} ml</td>
+                    <td className="p-4 text-sm text-gray-600 dark:text-muted-foreground">{donation.collectionCenter}</td>
+                    <td className="p-4 text-sm text-gray-600 dark:text-muted-foreground">{donation.quantity} ml</td>
                     <td className="p-4 text-sm">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${donation.status === 'Completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
                         {donation.status}
@@ -99,13 +99,13 @@ const DonorHistory = () => {
                         <>
                           <button 
                             onClick={() => handleDownloadCertificate(donation.id)}
-                            className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center text-xs bg-blue-50 px-2 py-1 rounded-md transition-colors"
+                            className="text-info hover:text-blue-800 font-medium inline-flex items-center text-xs bg-info/10 px-2 py-1 rounded-md transition-colors"
                           >
                             <Download className="w-3 h-3 mr-1" /> Certificate
                           </button>
                           <button 
                             onClick={() => setFeedbackDonationId(donation.id)}
-                            className="text-yellow-600 hover:text-yellow-800 font-medium inline-flex items-center text-xs bg-yellow-50 px-2 py-1 rounded-md transition-colors"
+                            className="text-warning hover:text-yellow-800 font-medium inline-flex items-center text-xs bg-warning/10 px-2 py-1 rounded-md transition-colors"
                           >
                             <Star className="w-3 h-3 mr-1" /> Feedback
                           </button>
@@ -123,9 +123,9 @@ const DonorHistory = () => {
       {/* Feedback Modal Overlay */}
       {feedbackDonationId && (
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 w-full max-w-md shadow-2xl">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">Rate Your Experience</h3>
-            <p className="text-sm text-gray-500 mb-4">How was your donation experience?</p>
+          <div className="bg-white dark:bg-card rounded-2xl p-6 w-full max-w-md shadow-2xl">
+            <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-4">Rate Your Experience</h3>
+            <p className="text-sm text-gray-500 dark:text-muted-foreground mb-4">How was your donation experience?</p>
             
             <div className="flex justify-center space-x-2 mb-6">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -150,7 +150,7 @@ const DonorHistory = () => {
             <div className="flex space-x-3">
               <button 
                 onClick={() => setFeedbackDonationId(null)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-medium hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 dark:text-muted-foreground font-medium hover:bg-gray-50 transition-colors"
               >
                 Cancel
               </button>

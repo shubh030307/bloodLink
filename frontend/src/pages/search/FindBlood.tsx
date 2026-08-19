@@ -25,7 +25,7 @@ const FindBlood = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground flex items-center gap-2">
           <Search className="text-blood-600" /> Find Available Blood
         </h2>
       </div>
@@ -36,7 +36,7 @@ const FindBlood = () => {
           <div className="w-full md:w-1/3">
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Blood Group</label>
             <select 
-              className="w-full px-4 py-3 glass-input text-gray-900"
+              className="w-full px-4 py-3 glass-input text-gray-900 dark:text-foreground"
               value={bloodGroup}
               onChange={(e) => setBloodGroup(e.target.value)}
             >
@@ -63,12 +63,12 @@ const FindBlood = () => {
       {/* Results Section */}
       {searched && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-gray-800">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-foreground">
             {results.length} Available Units Found for {bloodGroup}
           </h3>
           
           {results.length === 0 ? (
-            <div className="glass-card p-8 text-center text-gray-500">
+            <div className="glass-card p-8 text-center text-gray-500 dark:text-muted-foreground">
               <Droplet className="w-12 h-12 mx-auto text-gray-300 mb-3" />
               <p>No available units found for {bloodGroup} at this time.</p>
             </div>
@@ -88,15 +88,15 @@ const FindBlood = () => {
                   </div>
                   
                   <div className="space-y-3 mb-6">
-                    <div className="flex items-center text-gray-600 text-sm">
+                    <div className="flex items-center text-gray-600 dark:text-muted-foreground text-sm">
                       <Droplet className="w-4 h-4 mr-2 text-gray-400" />
                       <span>{unit.quantity} ml - Whole Blood</span>
                     </div>
-                    <div className="flex items-center text-gray-600 text-sm">
+                    <div className="flex items-center text-gray-600 dark:text-muted-foreground text-sm">
                       <Clock className="w-4 h-4 mr-2 text-gray-400" />
                       <span>Expires: {new Date(unit.expiryDate).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center text-gray-600 text-sm">
+                    <div className="flex items-center text-gray-600 dark:text-muted-foreground text-sm">
                       <MapPin className="w-4 h-4 mr-2 text-gray-400" />
                       <span>ID: {unit.id.substring(0,8).toUpperCase()}</span>
                     </div>

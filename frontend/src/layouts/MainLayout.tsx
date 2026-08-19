@@ -35,7 +35,6 @@ const MainLayout = () => {
             <NavItem to="/donor/appointments" icon={<Clock />} label="Appointments" active={location.pathname === '/donor/appointments'} />
             <NavItem to="/donor/history" icon={<FileText />} label="History" active={location.pathname === '/donor/history'} />
             <NavItem to="/donor/milestones" icon={<Award />} label="Milestones" active={location.pathname === '/donor/milestones'} />
-            <NavItem to="/donor/rewards" icon={<Gift />} label="Rewards" active={location.pathname === '/donor/rewards'} />
             <NavItem to="/support" icon={<HelpCircle />} label="Help & Support" active={location.pathname === '/support'} />
           </>
         );
@@ -93,9 +92,9 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[#f8f9fc] dark:bg-slate-900 font-sans">
+    <div className="h-screen overflow-hidden flex bg-[#f8f9fc] dark:bg-background font-sans">
       {/* Left Sidebar */}
-      <aside className="w-64 bg-white dark:bg-slate-800 m-4 rounded-[2rem] flex flex-col justify-between overflow-hidden shadow-sm dark:shadow-none border border-gray-100 dark:border-slate-700 print:hidden">
+      <aside className="w-64 bg-white dark:bg-card m-4 rounded-[2rem] flex flex-col justify-between overflow-hidden shadow-sm dark:shadow-none border border-gray-100 dark:border-border print:hidden">
         <div className="p-6 overflow-y-auto custom-scrollbar">
           <div className="flex items-center justify-center mb-8">
             {/* Provide the dark mode logo if applicable */}
@@ -107,33 +106,22 @@ const MainLayout = () => {
           </nav>
         </div>
 
-        <div className="p-4 bg-white dark:bg-slate-800 border-t border-gray-50 dark:border-slate-700 space-y-4">
+        <div className="p-4 bg-white dark:bg-card border-t border-gray-50 dark:border-border space-y-4">
 
-          {/* Every Drop Counts Banner for Donor */}
-          {user?.role === 'Donor' && (
-            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-red-500 to-red-600 p-5 shadow-lg shadow-red-500/30">
-              <div className="relative z-10 text-white">
-                <h3 className="text-lg font-black mb-1">Every Drop Counts</h3>
-                <p className="text-xs text-red-100 mb-4 max-w-[120px]">You're a lifesaver. Thank you!</p>
-              </div>
-              <div className="absolute -bottom-6 -right-6 opacity-90 w-24 h-24">
-                <img src="/donor-bg.png" className="w-full h-full object-cover rounded-tl-full mix-blend-screen opacity-80" />
-              </div>
-            </div>
-          )}
 
-          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700 rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-slate-600 transition-colors" onClick={logout}>
+
+          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-muted rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-accent transition-colors" onClick={logout}>
             <div className="flex items-center space-x-3">
               <div className="relative">
-                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 font-bold overflow-hidden">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-destructive font-bold overflow-hidden">
                   {/* Using an avatar placeholder or initial */}
                   {user?.name?.[0] || 'S'}
                 </div>
-                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                <div className="absolute bottom-0 right-0 w-3 h-3 bg-success/100 border-2 border-white rounded-full"></div>
               </div>
               <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-white">{user?.name || 'Sarthak Singh'}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{user?.role || 'Collection Staff'}</p>
+                <p className="text-sm font-bold text-gray-900 dark:text-foreground">{user?.name || 'Sarthak Singh'}</p>
+                <p className="text-xs text-gray-500 dark:text-muted-foreground">{user?.role || 'Collection Staff'}</p>
               </div>
             </div>
             <div className="text-gray-400">
@@ -149,14 +137,14 @@ const MainLayout = () => {
           {/* Top Left: Search Bar or Title */}
           <div className="flex-1">
             <div className="relative max-w-md">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search donors, ID, phone..."
-                className="w-full pl-10 pr-16 py-3 rounded-full bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 shadow-sm text-sm focus:ring-2 focus:ring-red-500 outline-none text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-slate-500"
+                className="w-full pl-10 pr-16 py-3 rounded-full bg-gray-50 dark:bg-card border border-gray-100 dark:border-border shadow-inner text-sm focus:ring-2 focus:ring-red-500 outline-none text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-slate-500"
               />
               <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
-                <span className="text-xs font-bold text-gray-400 dark:text-slate-500 bg-gray-50 dark:bg-slate-700 px-2 py-1 rounded-md border border-gray-100 dark:border-slate-600">Ctrl K</span>
+                <span className="text-xs font-bold text-gray-400 dark:text-muted-foreground bg-gray-50 dark:bg-muted px-2 py-1 rounded-md border border-gray-100 dark:border-border">Ctrl K</span>
               </div>
             </div>
           </div>
@@ -165,26 +153,26 @@ const MainLayout = () => {
           <div className="flex items-center space-x-4">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 transition-colors"
+              className="p-3 bg-white dark:bg-card rounded-full shadow-sm border border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors"
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <button className="relative p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 transition-colors">
+            <button className="relative p-3 bg-white dark:bg-card rounded-full shadow-sm border border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors">
               <Bell className="w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white dark:ring-slate-800"></span>
+              <span className="absolute top-2 right-2 w-2 h-2 bg-destructive/100 rounded-full ring-2 ring-white dark:ring-slate-800 animate-pulse"></span>
             </button>
 
-            <div className="flex items-center space-x-2 bg-white dark:bg-slate-800 px-4 py-2.5 rounded-full shadow-sm border border-gray-100 dark:border-slate-700">
-              <Calendar className="w-5 h-5 text-gray-400 dark:text-slate-500" />
-              <span className="text-sm font-bold text-gray-700 dark:text-slate-300">
+            <div className="flex items-center space-x-2 bg-white dark:bg-card px-4 py-2.5 rounded-full shadow-sm border border-gray-100 dark:border-border">
+              <Calendar className="w-5 h-5 text-gray-400 dark:text-muted-foreground" />
+              <span className="text-sm font-bold text-gray-700 dark:text-muted-foreground">
                 {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
               </span>
             </div>
 
             <button
               onClick={logout}
-              className="p-3 bg-white dark:bg-slate-800 rounded-full shadow-sm border border-gray-100 dark:border-slate-700 text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-500 transition-colors"
+              className="p-3 bg-white dark:bg-card rounded-full shadow-sm border border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors"
             >
               <LogOut className="w-5 h-5" />
             </button>
@@ -201,7 +189,7 @@ const MainLayout = () => {
 
 const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.ReactNode, label: string, active?: boolean }) => {
   return (
-    <Link to={to} className={`flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 ${active ? 'bg-red-600 text-white font-bold shadow-md shadow-red-500/20' : 'text-gray-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-slate-800 hover:text-red-600 dark:hover:text-red-400 font-medium'}`}>
+    <Link to={to} className={`flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 border-l-4 ${active ? 'bg-red-600 text-white font-bold shadow-md shadow-red-500/20 border-red-800' : 'border-transparent text-gray-500 dark:text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-accent dark:hover:text-red-400 font-medium'}`}>
       {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-5 h-5' })}
       <span>{label}</span>
     </Link>

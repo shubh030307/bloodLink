@@ -33,7 +33,7 @@ const AdminDashboard = () => {
   }, []);
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64 text-gray-500">Loading dashboard...</div>;
+    return <div className="flex justify-center items-center h-64 text-gray-500 dark:text-muted-foreground">Loading dashboard...</div>;
   }
 
   return (
@@ -52,7 +52,7 @@ const AdminDashboard = () => {
           value={stats?.totalDonors || 0} 
           change="Registered" 
           isPositive={true} 
-          icon={<Users className="text-blue-500" />} 
+          icon={<Users className="text-info" />} 
         />
         <StatCard 
           title="Pending Requests" 
@@ -66,14 +66,14 @@ const AdminDashboard = () => {
           value={stats?.emergencyRequests || 0} 
           change="Critical Priority" 
           isPositive={false} 
-          icon={<AlertTriangle className="text-red-600" />} 
+          icon={<AlertTriangle className="text-destructive" />} 
         />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
         <div className="glass-card p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Donations vs Requests</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-foreground mb-4">Donations vs Requests (Mock)</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats?.chartData || []} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
                 <XAxis dataKey="name" stroke="#6b7280" axisLine={false} tickLine={false} />
                 <YAxis stroke="#6b7280" axisLine={false} tickLine={false} />
                 <Tooltip 
-                  contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
+                  contentStyle={{ backgroundColor: 'hsl(var(--card))', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
                 />
                 <Line type="monotone" dataKey="donations" stroke="#ef4444" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
                 <Line type="monotone" dataKey="requests" stroke="#3b82f6" strokeWidth={3} dot={{ r: 4, strokeWidth: 2 }} activeDot={{ r: 6 }} />
@@ -92,7 +92,7 @@ const AdminDashboard = () => {
 
         {/* Donut Chart */}
         <div className="glass-card p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Available Blood Groups</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-foreground mb-4">Available Blood Groups</h3>
           <div className="h-[300px] w-full flex items-center justify-center relative">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -112,8 +112,8 @@ const AdminDashboard = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center flex-col pointer-events-none">
-              <span className="text-2xl font-bold text-gray-800">{stats?.availableUnits || 0}</span>
-              <span className="text-xs text-gray-500">Units</span>
+              <span className="text-2xl font-bold text-gray-800 dark:text-foreground">{stats?.availableUnits || 0}</span>
+              <span className="text-xs text-gray-500 dark:text-muted-foreground">Units</span>
             </div>
           </div>
         </div>
@@ -141,13 +141,13 @@ const StatCard = ({ title, value, change, isPositive, icon }: any) => (
       <div className="p-3 bg-white/50 rounded-xl shadow-sm backdrop-blur-md z-10">
         {icon}
       </div>
-      <span className={`text-sm font-medium px-2 py-1 rounded-full z-10 ${isPositive ? 'text-green-600 bg-green-100/50' : 'text-red-600 bg-red-100/50'}`}>
+      <span className={`text-sm font-medium px-2 py-1 rounded-full z-10 ${isPositive ? 'text-success bg-success/10' : 'text-destructive bg-destructive/10'}`}>
         {change}
       </span>
     </div>
     <div className="z-10">
-      <h4 className="text-3xl font-bold text-gray-800 mb-1">{value}</h4>
-      <p className="text-sm text-gray-500 font-medium">{title}</p>
+      <h4 className="text-3xl font-bold text-gray-800 dark:text-foreground mb-1">{value}</h4>
+      <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium">{title}</p>
     </div>
     {/* Decorative blur in background */}
     <div className="absolute -bottom-6 -right-6 w-24 h-24 bg-blood-100 rounded-full blur-2xl opacity-50 group-hover:bg-blood-200 transition-colors duration-300 z-0"></div>

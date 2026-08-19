@@ -56,7 +56,7 @@ const BookDonation = () => {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Book Donation Appointment</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground">Book Donation Appointment</h2>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -75,17 +75,17 @@ const BookDonation = () => {
 
           <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
             {loading ? (
-              <div className="text-center py-10 text-gray-500 animate-pulse">Finding nearby centers...</div>
+              <div className="text-center py-10 text-gray-500 dark:text-muted-foreground animate-pulse">Finding nearby centers...</div>
             ) : filteredBanks.map((bank) => (
               <div 
                 key={bank.id} 
                 onClick={() => setSelectedBank(bank)}
-                className={`glass-card p-4 cursor-pointer transition-all ${selectedBank?.id === bank.id ? 'ring-2 ring-blood-500 bg-blood-50/30' : 'hover:bg-white'}`}
+                className={`glass-card p-4 cursor-pointer transition-all ${selectedBank?.id === bank.id ? 'ring-2 ring-blood-500 bg-blood-50/30' : 'hover:bg-white dark:bg-card'}`}
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h4 className="font-bold text-gray-900">{bank.name}</h4>
-                    <p className="text-sm text-gray-500 mt-1 flex items-start">
+                    <h4 className="font-bold text-gray-900 dark:text-foreground">{bank.name}</h4>
+                    <p className="text-sm text-gray-500 dark:text-muted-foreground mt-1 flex items-start">
                       <MapPin className="w-4 h-4 mr-1 shrink-0 mt-0.5" /> 
                       {bank.address}
                     </p>
@@ -106,7 +106,7 @@ const BookDonation = () => {
             </div>
           ) : (
             <div className="space-y-6">
-              <h3 className="text-lg font-bold text-gray-900 mb-4">{selectedBank.name}</h3>
+              <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-4">{selectedBank.name}</h3>
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2 flex items-center">

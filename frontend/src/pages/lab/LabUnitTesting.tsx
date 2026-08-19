@@ -116,7 +116,7 @@ export default function LabUnitTesting() {
   };
 
   if (loading) {
-    return <div className="p-8 text-center text-gray-500">Loading laboratory test environment...</div>;
+    return <div className="p-8 text-center text-gray-500 dark:text-muted-foreground">Loading laboratory test environment...</div>;
   }
 
   const renderTestInput = (test: any) => {
@@ -128,7 +128,7 @@ export default function LabUnitTesting() {
           <select 
             value={value}
             onChange={(e) => handleResultChange(test.id, 'resultValue', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-red-500"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg bg-white dark:bg-card focus:ring-2 focus:ring-red-500"
           >
             <option value="">Select Result...</option>
             <option value="NEGATIVE">Negative / Non-Reactive</option>
@@ -142,7 +142,7 @@ export default function LabUnitTesting() {
           <select 
             value={value}
             onChange={(e) => handleResultChange(test.id, 'resultValue', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-red-500"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg bg-white dark:bg-card focus:ring-2 focus:ring-red-500"
           >
             <option value="">Select Value...</option>
             {options.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
@@ -156,10 +156,10 @@ export default function LabUnitTesting() {
               step="any"
               value={value}
               onChange={(e) => handleResultChange(test.id, 'resultValue', e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-red-500"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg bg-white dark:bg-card focus:ring-2 focus:ring-red-500"
               placeholder="0.00"
             />
-            {test.unit && <span className="text-gray-500 font-medium">{test.unit}</span>}
+            {test.unit && <span className="text-gray-500 dark:text-muted-foreground font-medium">{test.unit}</span>}
           </div>
         );
       default:
@@ -168,7 +168,7 @@ export default function LabUnitTesting() {
             type="text" 
             value={value}
             onChange={(e) => handleResultChange(test.id, 'resultValue', e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-red-500"
+            className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg bg-white dark:bg-card focus:ring-2 focus:ring-red-500"
             placeholder="Enter result..."
           />
         );
@@ -179,18 +179,18 @@ export default function LabUnitTesting() {
     <div className="p-6 max-w-5xl mx-auto space-y-6 pb-24">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-            <Microscope className="w-6 h-6 text-red-600" />
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+            <Microscope className="w-6 h-6 text-destructive" />
             Laboratory Testing
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-1">
-            Entering structured clinical results for Blood Unit <span className="font-bold text-gray-700 dark:text-gray-300">{unit?.unitNumber}</span>
+          <p className="text-gray-500 dark:text-muted-foreground mt-1">
+            Entering structured clinical results for Blood Unit <span className="font-bold text-gray-700 dark:text-muted-foreground">{unit?.unitNumber}</span>
           </p>
         </div>
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl border border-red-200 bg-red-50 text-red-800 dark:bg-red-900/20 dark:border-red-900/50 dark:text-red-400 flex items-start gap-3">
+        <div className="p-4 rounded-xl border border-red-200 bg-destructive/10 text-red-800 dark:bg-red-900/20 dark:border-red-900/50 dark:text-red-400 flex items-start gap-3">
           <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <p>{error}</p>
         </div>
@@ -199,14 +199,14 @@ export default function LabUnitTesting() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           {tests.map(test => (
-            <div key={test.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-6 shadow-sm">
+            <div key={test.id} className="bg-white dark:bg-background border border-gray-200 dark:border-border rounded-xl p-6 shadow-sm">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                  <h3 className="font-bold text-lg text-gray-900 dark:text-foreground flex items-center gap-2">
                     {test.testName}
-                    {test.isRequired && <span className="text-red-500">*</span>}
+                    {test.isRequired && <span className="text-destructive">*</span>}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                  <p className="text-sm text-gray-500 dark:text-muted-foreground">
                     Category: {test.category} | Code: {test.testCode}
                   </p>
                 </div>
@@ -214,16 +214,16 @@ export default function LabUnitTesting() {
 
               <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Result Value</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-muted-foreground mb-1">Result Value</label>
                   {renderTestInput(test)}
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Clinical Interpretation</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-muted-foreground mb-1">Clinical Interpretation</label>
                   <select 
                     value={results[test.id]?.resultStatus || 'NORMAL'}
                     onChange={(e) => handleResultChange(test.id, 'resultStatus', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 focus:ring-2 focus:ring-red-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg bg-gray-50 dark:bg-card focus:ring-2 focus:ring-red-500"
                   >
                     <option value="NORMAL">Normal / Safe</option>
                     <option value="ABNORMAL">Abnormal / Flag</option>
@@ -234,12 +234,12 @@ export default function LabUnitTesting() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Remarks (Optional)</label>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-muted-foreground mb-1">Remarks (Optional)</label>
                   <input 
                     type="text" 
                     value={results[test.id]?.remarks || ''}
                     onChange={(e) => handleResultChange(test.id, 'remarks', e.target.value)}
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-red-500"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-border rounded-lg bg-white dark:bg-card focus:ring-2 focus:ring-red-500"
                     placeholder="Any observations..."
                   />
                 </div>
@@ -249,7 +249,7 @@ export default function LabUnitTesting() {
         </div>
 
         <div className="space-y-6">
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl p-5">
+          <div className="bg-info/10 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-900/50 rounded-xl p-5">
             <h4 className="font-bold text-blue-900 dark:text-blue-300 mb-2">Unit Information</h4>
             <div className="text-sm space-y-2 text-blue-800 dark:text-blue-400">
               <p><span className="font-medium">ID:</span> {unit?.unitNumber}</p>
@@ -261,16 +261,16 @@ export default function LabUnitTesting() {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 lg:pl-64">
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-background border-t border-gray-200 dark:border-border p-4 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-10 lg:pl-64">
         <div className="max-w-5xl mx-auto flex justify-between items-center">
-          <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+          <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium">
             Session: {sessionId}
           </p>
           <div className="flex gap-3">
             <button 
               onClick={handleSaveDraft}
               disabled={saving}
-              className="px-6 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+              className="px-6 py-2.5 bg-gray-100 dark:bg-card text-gray-700 dark:text-muted-foreground font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-accent transition-colors flex items-center gap-2"
             >
               <Save className="w-4 h-4" /> Save Draft
             </button>

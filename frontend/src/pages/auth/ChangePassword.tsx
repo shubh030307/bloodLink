@@ -56,20 +56,20 @@ const ChangePassword = () => {
       <div className="absolute top-0 right-0 -mt-20 -mr-20 w-80 h-80 bg-red-100 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none"></div>
       <div className="absolute bottom-0 left-0 -mb-20 -ml-20 w-80 h-80 bg-rose-100 rounded-full blur-3xl opacity-50 mix-blend-multiply pointer-events-none"></div>
       
-      <div className="bg-white rounded-3xl shadow-xl border border-gray-100 w-full max-w-md p-8 relative z-10">
+      <div className="bg-white dark:bg-card rounded-3xl shadow-xl border border-gray-100 w-full max-w-md p-8 relative z-10">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 text-red-600 mb-4 ring-8 ring-red-50/50">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-destructive/10 text-destructive mb-4 ring-8 ring-red-50/50">
             <Shield className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-black text-gray-900 mb-2">Update Password</h1>
-          <p className="text-gray-500 text-sm">
+          <h1 className="text-2xl font-black text-gray-900 dark:text-foreground mb-2">Update Password</h1>
+          <p className="text-gray-500 dark:text-muted-foreground text-sm">
             For security reasons, you must change your temporary password before accessing the system.
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 text-red-600 rounded-xl text-sm font-medium border border-red-100 flex items-center">
-            <span className="w-2 h-2 rounded-full bg-red-500 mr-2"></span>
+          <div className="mb-6 p-4 bg-destructive/10 text-destructive rounded-xl text-sm font-medium border border-red-100 flex items-center">
+            <span className="w-2 h-2 rounded-full bg-destructive/100 mr-2"></span>
             {error}
           </div>
         )}
@@ -92,7 +92,7 @@ const ChangePassword = () => {
               <button 
                 type="button" 
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 dark:text-muted-foreground"
               >
                 {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

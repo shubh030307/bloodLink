@@ -63,7 +63,7 @@ const DonorMilestones = () => {
   };
 
   if (loading) {
-    return <div className="text-center py-10 text-gray-500 animate-pulse">Loading strict milestone data...</div>;
+    return <div className="text-center py-10 text-gray-500 dark:text-muted-foreground animate-pulse">Loading strict milestone data...</div>;
   }
 
   const { verifiedDonations, allMilestones, achievements, rewardClaims } = data;
@@ -92,8 +92,8 @@ const DonorMilestones = () => {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h2 className="text-3xl font-black text-gray-900 dark:text-white tracking-tight">Milestones & Rewards</h2>
-          <p className="text-gray-500 mt-1 font-medium">Your journey as a life saver.</p>
+          <h2 className="text-3xl font-black text-gray-900 dark:text-foreground tracking-tight">Milestones & Rewards</h2>
+          <p className="text-gray-500 dark:text-muted-foreground mt-1 font-medium">Your journey as a life saver.</p>
         </div>
         <div className="bg-red-50 dark:bg-red-900/20 text-blood-600 dark:text-red-400 px-6 py-3 rounded-2xl border border-red-100 dark:border-red-900/30 flex flex-col items-center justify-center">
           <span className="text-3xl font-black">{verifiedDonations}</span>
@@ -128,13 +128,13 @@ const DonorMilestones = () => {
               )}
               
               <div className="flex flex-col md:flex-row items-start md:items-center">
-                <div className={`p-5 rounded-3xl mr-6 flex-shrink-0 ${isUnlocked ? getMilestoneColor(milestone.code).split(' ')[0] : 'bg-gray-100 dark:bg-slate-800'}`}>
+                <div className={`p-5 rounded-3xl mr-6 flex-shrink-0 ${isUnlocked ? getMilestoneColor(milestone.code).split(' ')[0] : 'bg-gray-100 dark:bg-muted'}`}>
                   {getMilestoneIcon(milestone.code)}
                 </div>
                 <div className="flex-1 mt-4 md:mt-0">
                   <div className="flex items-center space-x-3 mb-1">
-                    <h3 className="text-2xl font-black text-gray-900 dark:text-white uppercase tracking-tight">{milestone.name}</h3>
-                    <span className="px-3 py-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-lg text-sm font-bold">
+                    <h3 className="text-2xl font-black text-gray-900 dark:text-foreground uppercase tracking-tight">{milestone.name}</h3>
+                    <span className="px-3 py-1 bg-slate-100 dark:bg-muted text-slate-600 dark:text-muted-foreground rounded-lg text-sm font-bold">
                       {milestone.requiredDonations} {milestone.requiredDonations === 1 ? 'Donation' : 'Donations'}
                     </span>
                   </div>

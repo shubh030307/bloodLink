@@ -69,7 +69,7 @@ export const getAllDonors = async (req: Request, res: Response): Promise<void> =
 export const updateDonorProfile = async (req: Request, res: Response): Promise<void> => {
   try {
     const { userId } = (req as any).user;
-    const { mobileNumber, address, emergencyContactName, emergencyContactRelationship, emergencyContactNumber } = req.body;
+    const { mobileNumber, address, emergencyContactName, emergencyContactRelationship, emergencyContactNumber, age, gender } = req.body;
     
     const donor = await prisma.donor.findUnique({ where: { userId }, include: { emergencyContact: true } });
     if (!donor) {
@@ -82,6 +82,8 @@ export const updateDonorProfile = async (req: Request, res: Response): Promise<v
       data: {
         mobileNumber,
         address,
+        ...(age && { age: parseInt(age, 10) }),
+        ...(gender && { gender }),
         emergencyContact: {
           upsert: {
             create: {

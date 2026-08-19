@@ -29,7 +29,7 @@ const Appointments = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground flex items-center gap-2">
           <CalendarIcon className="text-blood-600" /> Appointments
         </h2>
         <button 
@@ -43,12 +43,12 @@ const Appointments = () => {
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="glass-card p-4 flex items-center gap-4">
-          <div className="p-3 bg-blue-100 text-blue-600 rounded-full">
+          <div className="p-3 bg-blue-100 text-info rounded-full">
             <CalendarIcon className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Today's Appointments</p>
-            <p className="text-2xl font-bold text-gray-800">
+            <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium">Today's Appointments</p>
+            <p className="text-2xl font-bold text-gray-800 dark:text-foreground">
               {appointments.filter(a => new Date(a.date).toDateString() === new Date().toDateString()).length}
             </p>
           </div>
@@ -58,8 +58,8 @@ const Appointments = () => {
             <Clock className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-sm text-gray-500 font-medium">Pending Approvals</p>
-            <p className="text-2xl font-bold text-gray-800">{appointments.filter(a => a.status === 'PENDING').length}</p>
+            <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium">Pending Approvals</p>
+            <p className="text-2xl font-bold text-gray-800 dark:text-foreground">{appointments.filter(a => a.status === 'PENDING').length}</p>
           </div>
         </div>
       </div>
@@ -86,7 +86,7 @@ const Appointments = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+              <tr className="bg-gray-50/50 text-gray-500 dark:text-muted-foreground text-sm border-b border-gray-100">
                 <th className="p-4 font-medium">Appointment ID</th>
                 <th className="p-4 font-medium">Donor Name</th>
                 <th className="p-4 font-medium">Blood Group</th>
@@ -98,14 +98,14 @@ const Appointments = () => {
             <tbody className="divide-y divide-gray-100">
               {filteredAppointments.map((apt) => (
                 <tr key={apt.id} className="hover:bg-white/40 transition-colors">
-                  <td className="p-4 text-sm font-medium text-gray-900">{apt.appointmentNumber}</td>
-                  <td className="p-4 text-sm text-gray-800 font-medium">{apt.donor?.user?.name}</td>
+                  <td className="p-4 text-sm font-medium text-gray-900 dark:text-foreground">{apt.appointmentNumber}</td>
+                  <td className="p-4 text-sm text-gray-800 dark:text-foreground font-medium">{apt.donor?.user?.name}</td>
                   <td className="p-4 text-sm">
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blood-50 text-blood-700 font-bold text-xs">
                       {apt.donor?.bloodGroup}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-gray-600">
+                  <td className="p-4 text-sm text-gray-600 dark:text-muted-foreground">
                     <div className="flex items-center gap-2">
                       <span>{new Date(apt.date).toLocaleDateString()}</span>
                       <span className="text-gray-400">|</span>
@@ -124,9 +124,9 @@ const Appointments = () => {
                       </span>
                       
                       {apt.visit?.donation?.otpVerification?.status === 'OTP_PENDING' && (
-                        <div className="bg-red-50 border border-red-200 rounded px-2 py-1 mt-1 text-center">
-                          <p className="text-[10px] text-red-600 font-bold mb-1">Verify Donation</p>
-                          <span className="text-sm font-mono font-bold tracking-widest text-gray-900 bg-white px-2 py-0.5 rounded border border-red-300">
+                        <div className="bg-destructive/10 border border-red-200 rounded px-2 py-1 mt-1 text-center">
+                          <p className="text-[10px] text-destructive font-bold mb-1">Verify Donation</p>
+                          <span className="text-sm font-mono font-bold tracking-widest text-gray-900 dark:text-foreground bg-white dark:bg-card px-2 py-0.5 rounded border border-red-300">
                             {apt.visit.donation.otpVerification.otpHash}
                           </span>
                         </div>
@@ -137,7 +137,7 @@ const Appointments = () => {
                     {apt.status === 'BOOKED' && (
                       <button className="text-blood-600 hover:text-blood-800 font-medium text-sm mr-3">Cancel</button>
                     )}
-                    <button className="text-blue-600 hover:text-blue-800 font-medium text-sm">Reschedule</button>
+                    <button className="text-info hover:text-blue-800 font-medium text-sm">Reschedule</button>
                   </td>
                 </tr>
               ))}

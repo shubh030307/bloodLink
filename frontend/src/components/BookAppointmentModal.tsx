@@ -66,7 +66,7 @@ const BookAppointmentModal = ({ isOpen, onClose, donorId, onSuccess }: BookAppoi
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+      <div className="bg-white dark:bg-card rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
         <div className="bg-blood-600 p-4 flex justify-between items-center text-white">
           <h2 className="font-bold text-lg">Book Appointment</h2>
           <button onClick={onClose} className="hover:bg-blood-700 p-1 rounded-full transition-colors">
@@ -129,7 +129,7 @@ const BookAppointmentModal = ({ isOpen, onClose, donorId, onSuccess }: BookAppoi
                 <button
                   key={time}
                   onClick={() => setTimeSlot(time)}
-                  className={`py-2 text-xs font-medium rounded-lg border transition-colors ${timeSlot === time ? 'bg-blood-100 border-blood-500 text-blood-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                  className={`py-2 text-xs font-medium rounded-lg border transition-colors ${timeSlot === time ? 'bg-blood-100 border-blood-500 text-blood-700' : 'border-gray-200 text-gray-600 dark:text-muted-foreground hover:bg-gray-50'}`}
                 >
                   {time}
                 </button>
@@ -139,7 +139,7 @@ const BookAppointmentModal = ({ isOpen, onClose, donorId, onSuccess }: BookAppoi
         </div>
 
         <div className="p-4 border-t bg-gray-50 flex justify-end gap-3">
-          <button onClick={onClose} className="px-4 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition-colors">
+          <button onClick={onClose} className="px-4 py-2 text-gray-600 dark:text-muted-foreground font-medium hover:bg-gray-100 rounded-lg transition-colors">
             Cancel
           </button>
           <button 

@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         <div className="relative flex items-center justify-center w-20 h-20 bg-blood-100 rounded-full mb-4 animate-pulse">
           <Droplet className="w-10 h-10 text-blood-600 absolute animate-bounce" fill="currentColor" />
         </div>
-        <div className="text-lg font-medium text-gray-600 animate-pulse tracking-wide">Loading Blood Bank...</div>
+        <div className="text-lg font-medium text-gray-600 dark:text-muted-foreground animate-pulse tracking-wide">Loading Blood Bank...</div>
       </div>
     );
   }
