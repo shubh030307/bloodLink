@@ -9,7 +9,7 @@ datasource db {
 
 model Role {
   id    String @id @default(uuid())
-  name  String @unique // Admin, Receptionist, MedicalStaff, CollectionStaff, LabTechnician, Hospital, Donor
+  name  String @unique // Admin, Receptionist, CollectionStaff, LabTechnician, Hospital, Donor
   users User[]
 }
 
@@ -20,16 +20,18 @@ model User {
   name         String
   roleId       String
   role         Role     @relation(fields: [roleId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  mustChangePassword Boolean  @default(false)
 
-  donor    Donor?
-  hospital Hospital?
+  donor        Donor?
+  hospital     Hospital?
+  staffProfile StaffProfile?
 
   auditLogs             AuditLog[]
   notifications         Notification[]
   staffAppointments     Appointment[]          @relation("StaffAppointments")
-  staffVisits           Visit[]                @relation("StaffVisits")
+
   staffDonations        Donation[]             @relation("StaffDonations")
   staffTests            LabReport[]            @relation("StaffTests")
   labSessions           LaboratorySession[]
@@ -43,6 +45,8 @@ model User {
   staffCollections   CollectionRecord[]    @relation("StaffCollections")
   createdExceptions  CollectionException[] @relation("ExceptionCreator")
   resolvedExceptions CollectionException[] @relation("ExceptionResolver")
+
+  approvedRequests   BloodRequest[]        @relation("RequestApprovers")
 }
 
 model Donor {
@@ -134,8 +138,7 @@ model Visit {
   identityVerified           Boolean @default(false)
   medicalCertificateAttached Boolean @default(false)
 
-  medicalStaffId String?
-  medicalStaff   User?   @relation("StaffVisits", fields: [medicalStaffId], references: [id])
+
   medicalRemarks String?
 
   donation             Donation?
@@ -368,6 +371,10 @@ model BloodRequest {
   requiredDate   DateTime
 
   status String @default("PENDING") // PENDING, APPROVED, RESERVED, ISSUED, COMPLETED, REJECTED, WAITLISTED
+
+  approvedById String?
+  approvedBy   User?     @relation("RequestApprovers", fields: [approvedById], references: [id])
+  approvedAt   DateTime?
 
   requestedAt DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -631,4 +638,18 @@ model OtpVerification {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model StaffProfile {
+  id            String  @id @default(uuid())
+  userId        String  @unique
+  user          User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employeeId    String  @unique // e.g., EMP-1001
+  branch        String?
+  contactNumber String?
+  address       String?
+  age           Int?
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

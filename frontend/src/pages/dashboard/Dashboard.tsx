@@ -8,7 +8,7 @@ import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import DonorDashboard from '../donor/DonorDashboard.tsx';
 import ReceptionDashboard from './ReceptionDashboard.tsx';
-import MedicalDashboard from './MedicalDashboard.tsx';
+
 import CollectionDashboard from '../collection/CollectionDashboard.tsx';
 import LabDashboard from '../lab/LabDashboard.tsx';
 import HospitalDashboard from './HospitalDashboard.tsx';
@@ -137,7 +137,7 @@ const Dashboard = () => {
   
   if (user?.role === 'Donor') return <DonorDashboard />;
   if (user?.role === 'Receptionist') return <ReceptionDashboard />;
-  if (user?.role === 'MedicalStaff') return <MedicalDashboard />;
+
   if (user?.role === 'CollectionStaff') return <CollectionDashboard />;
   if (user?.role === 'LabTechnician') return <LabDashboard />;
   if (user?.role === 'Hospital') return <HospitalDashboard />;

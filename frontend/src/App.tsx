@@ -9,6 +9,8 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
+import ChangePassword from './pages/auth/ChangePassword';
+import StaffManagement from './pages/staff/StaffManagement';
 import Inventory from './pages/inventory/Inventory';
 import Donors from './pages/donors/Donors';
 import Appointments from './pages/appointments/Appointments';
@@ -54,6 +56,8 @@ function App() {
                 <Route path="/donors" element={<Donors />} />
                 <Route path="/appointments" element={<Appointments />} />
                 <Route path="/collection" element={<CollectionDashboard />} />
+                <Route path="/staff" element={<StaffManagement />} />
+                <Route path="/change-password" element={<ChangePassword />} />
                 
                 {/* Donor Specific Routes */}
                 <Route path="/donor/book" element={<BookDonation />} />

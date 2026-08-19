@@ -11,6 +11,6 @@ router.get('/eligibility', authenticate, authorize(['Donor']), getDonorEligibili
 router.post('/feedback', authenticate, authorize(['Donor']), submitFeedback);
 
 // Staff specific
-router.get('/all', authenticate, authorize(['Admin', 'Receptionist', 'MedicalStaff']), getAllDonors);
+router.get('/all', authenticate, authorize(['Admin', 'Receptionist']), getAllDonors);
 
 export default router;

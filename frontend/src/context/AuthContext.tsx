@@ -2,13 +2,14 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import api from '../services/api';
 import { Droplet } from 'lucide-react';
 
-export type UserRole = 'Admin' | 'Receptionist' | 'MedicalStaff' | 'CollectionStaff' | 'LabTechnician' | 'Hospital' | 'Donor';
+export type UserRole = 'Admin' | 'Receptionist' | 'CollectionStaff' | 'LabTechnician' | 'Hospital' | 'Donor';
 
 interface User {
   id: string;
   name: string;
   email: string;
   role: UserRole;
+  mustChangePassword?: boolean;
 }
 
 interface AuthContextType {

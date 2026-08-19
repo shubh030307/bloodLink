@@ -122,7 +122,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         id: user.id, 
         name: user.name, 
         email: user.email, 
-        role: user.role.name 
+        role: user.role.name,
+        mustChangePassword: user.mustChangePassword
       } 
     });
   } catch (error) {
@@ -146,11 +147,11 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    res.status(200).json({
       id: user.id,
       name: user.name,
       email: user.email,
-      role: user.role.name
+      role: user.role.name,
+      mustChangePassword: user.mustChangePassword
     });
   } catch (error) {
     console.error(error);
@@ -158,3 +159,39 @@ export const getMe = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
+export const changePassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = (req as any).user;
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { id: userId } });
+    if (!user) {
+      res.status(404).json({ error: 'User not found' });
+      return;
+    }
+
+    // If they have a temp password, currentPassword isn't strictly required by some designs,
+    // but typically it's still passed, or we just trust the token.
+    // Let's enforce current password check for security.
+    const isMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!isMatch) {
+      res.status(401).json({ error: 'Invalid current password' });
+      return;
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, 10);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        passwordHash,
+        mustChangePassword: false
+      }
+    });
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};

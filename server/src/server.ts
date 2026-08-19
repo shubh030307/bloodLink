@@ -14,11 +14,12 @@ import appointmentRoutes from './routes/appointment.routes';
 import collectionRoutes from './routes/collection.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import receptionRoutes from './routes/reception.routes';
-import medicalRoutes from './routes/medical.routes';
+
 import labRoutes from './routes/lab.routes';
 import auditRoutes from './routes/audit.routes';
 import notificationRoutes from './routes/notification.routes';
 import certificateRoutes from './routes/certificate.routes';
+import staffRoutes from './routes/staff.routes';
 import path from 'path';
 
 dotenv.config();
@@ -53,11 +54,12 @@ app.use('/api/appointments', appointmentRoutes);
 app.use('/api/collection', collectionRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/reception', receptionRoutes);
-app.use('/api/medical', medicalRoutes);
+
 app.use('/api/lab', labRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/certificates', certificateRoutes);
+app.use('/api/staff', staffRoutes);
 
 // Socket.io for real-time updates
 io.on('connection', (socket) => {

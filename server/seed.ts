@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 const roles = [
   'Admin',
   'Receptionist',
-  'MedicalStaff',
   'CollectionStaff',
   'LabTechnician',
   'Hospital',

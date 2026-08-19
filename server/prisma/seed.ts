@@ -7,7 +7,6 @@ async function main() {
   const roles = [
     'Admin',
     'Receptionist',
-    'MedicalStaff',
     'CollectionStaff',
     'LabTechnician',
     'Hospital',
@@ -46,7 +45,7 @@ async function main() {
 
   await createMockUser('Admin', 'admin@test.com');
   await createMockUser('Receptionist', 'receptionist@test.com');
-  await createMockUser('MedicalStaff', 'medical@test.com');
+
   await createMockUser('CollectionStaff', 'collection@test.com');
   await createMockUser('LabTechnician', 'lab@test.com');
 

@@ -20,6 +20,10 @@ const MainLayout = () => {
     return <Navigate to="/login" replace />;
   }
 
+  if (user?.mustChangePassword && location.pathname !== '/change-password') {
+    return <Navigate to="/change-password" replace />;
+  }
+
   const renderNavLinks = () => {
     switch (user?.role) {
       case 'Donor':
@@ -48,6 +52,7 @@ const MainLayout = () => {
             <NavItem to="/lab/dashboard" icon={<Microscope />} label="Laboratory" active={location.pathname === '/lab/dashboard' || location.pathname === '/lab/queue'} />
             <NavItem to="/lab/history" icon={<FileText />} label="Lab History" active={location.pathname === '/lab/history'} />
             <NavItem to="/lab/exceptions" icon={<HelpCircle />} label="Lab Exceptions" active={location.pathname === '/lab/exceptions'} />
+            <NavItem to="/staff" icon={<Users />} label="Staff & Facilities" active={location.pathname === '/staff'} />
             <NavItem to="/reports" icon={<FileText />} label="Reports" active={location.pathname === '/reports'} />
             <NavItem to="/settings" icon={<Settings />} label="Settings" active={location.pathname === '/settings'} />
           </>
@@ -61,13 +66,7 @@ const MainLayout = () => {
             <NavItem to="/donors" icon={<Users />} label="Donors" active={location.pathname === '/donors'} />
           </>
         );
-      case 'MedicalStaff':
-        return (
-          <>
-            <NavItem to="/" icon={<Home />} label="Dashboard" active={location.pathname === '/'} />
-            <NavItem to="/donors" icon={<Users />} label="Donors" active={location.pathname === '/donors'} />
-          </>
-        );
+
       case 'CollectionStaff':
         return (
           <>

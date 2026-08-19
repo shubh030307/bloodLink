@@ -4,7 +4,7 @@ import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get('/', authenticate, authorize(['Admin', 'ADMIN', 'Hospital', 'MedicalStaff', 'LAB_TECHNICIAN', 'LabTechnician']), getInventory);
+router.get('/', authenticate, authorize(['Admin', 'ADMIN', 'Hospital', 'LAB_TECHNICIAN', 'LabTechnician']), getInventory);
 router.get('/stats', authenticate, authorize(['Admin', 'ADMIN']), getInventoryStats);
 
 export default router;

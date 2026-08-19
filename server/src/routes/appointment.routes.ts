@@ -11,8 +11,8 @@ router.post('/:id/cancel', authenticate, authorize(['Donor']), cancelAppointment
 router.get('/:id/qr', authenticate, authorize(['Donor']), getAppointmentQr);
 
 // Staff specific
-router.post('/staff-book', authenticate, authorize(['Admin', 'Receptionist', 'MedicalStaff']), staffBookAppointment);
-router.get('/all', authenticate, authorize(['Admin', 'Receptionist', 'MedicalStaff']), getAllAppointments);
+router.post('/staff-book', authenticate, authorize(['Admin', 'Receptionist']), staffBookAppointment);
+router.get('/all', authenticate, authorize(['Admin', 'Receptionist']), getAllAppointments);
 
 // General auth
 router.get('/slots', authenticate, getAvailableSlots);

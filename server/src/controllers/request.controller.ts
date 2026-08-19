@@ -50,7 +50,10 @@ export const submitRequest = async (req: Request, res: Response): Promise<void> 
 export const getAllRequests = async (req: Request, res: Response): Promise<void> => {
   try {
     const requests = await prisma.bloodRequest.findMany({
-      include: { hospital: { include: { user: { select: { name: true } } } } },
+      include: { 
+        hospital: { include: { user: { select: { name: true } } } },
+        approvedBy: { select: { name: true } }
+      },
       orderBy: { requestedAt: 'desc' }
     });
     res.json(requests);
@@ -123,7 +126,11 @@ export const processRequest = async (req: Request, res: Response): Promise<void>
       const result = await prisma.$transaction(async (tx) => {
         const updatedReq = await tx.bloodRequest.update({
           where: { id: requestId },
-          data: { status: 'RESERVED' }
+          data: { 
+            status: 'RESERVED',
+            approvedById: userId,
+            approvedAt: new Date()
+          }
         });
 
         for (const unit of availableUnits) {
