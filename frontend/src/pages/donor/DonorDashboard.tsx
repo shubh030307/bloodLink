@@ -59,11 +59,6 @@ const DonorDashboard = () => {
           </h1>
           <p className="text-gray-500 dark:text-muted-foreground mt-1">Thank you for being a life saver. Your generosity brings hope.</p>
         </div>
-        {/* The mockup has a hand holding a blood drop graphic floating on the right side of the header */}
-        <div className="absolute -bottom-4 -right-4 opacity-90 w-40 h-40">
-          <img src="/bg.png" className="w-full h-full object-cover rounded-tl-full opacity-50 dark:hidden" style={{clipPath: "circle(50% at right bottom)"}} />
-          <img src="/dark-bg.png" className="w-full h-full object-cover rounded-tl-full opacity-50 hidden dark:block" style={{clipPath: "circle(50% at right bottom)"}} />
-        </div>
       </div>
 
       {/* Global OTP Alert */}

@@ -4,6 +4,7 @@ import api from '../../services/api';
 
 const DonorProfile = () => {
   const [profile, setProfile] = useState<any>(null);
+  const [eligibility, setEligibility] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
@@ -11,19 +12,27 @@ const DonorProfile = () => {
     address: '',
     emergencyContactName: '',
     emergencyContactRelationship: '',
-    emergencyContactNumber: ''
+    emergencyContactNumber: '',
+    age: '',
+    gender: ''
   });
 
   const fetchProfile = async () => {
     try {
-      const response = await api.get('/donors/profile');
-      setProfile(response.data);
+      const [profileRes, eligibilityRes] = await Promise.all([
+        api.get('/donors/profile'),
+        api.get('/donors/eligibility')
+      ]);
+      setProfile(profileRes.data);
+      setEligibility(eligibilityRes.data);
       setFormData({
-        mobileNumber: response.data.mobileNumber || '',
-        address: response.data.address || '',
-        emergencyContactName: response.data.emergencyContact?.name || '',
-        emergencyContactRelationship: response.data.emergencyContact?.relationship || '',
-        emergencyContactNumber: response.data.emergencyContact?.mobileNumber || '',
+        mobileNumber: profileRes.data.mobileNumber || '',
+        address: profileRes.data.address || '',
+        emergencyContactName: profileRes.data.emergencyContact?.name || '',
+        emergencyContactRelationship: profileRes.data.emergencyContact?.relationship || '',
+        emergencyContactNumber: profileRes.data.emergencyContact?.mobileNumber || '',
+        age: profileRes.data.age?.toString() || '',
+        gender: profileRes.data.gender || ''
       });
     } catch (error) {
       console.error("Failed to fetch profile", error);
@@ -105,39 +114,66 @@ const DonorProfile = () => {
              )}
              
              <div className="w-full grid grid-cols-2 gap-4 border-t border-gray-100 dark:border-border pt-6">
-                <div className="bg-red-50 dark:bg-muted rounded-2xl p-4 flex flex-col items-center justify-center border border-red-50 dark:border-border">
-                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mb-2 text-red-500">
+                <div className="bg-red-50 dark:bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center justify-center border border-red-50 dark:border-slate-700/50 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-2 text-red-500 dark:text-red-400">
                     <Calendar className="w-4 h-4" />
                   </div>
                   <p className="text-[10px] text-gray-400 dark:text-muted-foreground uppercase font-bold tracking-widest mb-1">Age</p>
-                  <p className="font-semibold text-gray-900 dark:text-foreground text-lg">{profile?.age ? `${profile.age} Years` : '-'}</p>
+                  {isEditing ? (
+                    <input type="number" name="age" value={formData.age} onChange={handleChange} className="w-full text-center bg-transparent border-b border-red-200 dark:border-red-900/50 outline-none text-gray-900 dark:text-foreground font-semibold" placeholder="Age" />
+                  ) : (
+                    <p className="font-semibold text-gray-900 dark:text-foreground text-lg">{profile?.age ? `${profile.age} Years` : '-'}</p>
+                  )}
                 </div>
-                <div className="bg-red-50 dark:bg-muted rounded-2xl p-4 flex flex-col items-center justify-center border border-red-50 dark:border-border">
-                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center mb-2 text-red-500">
+                <div className="bg-red-50 dark:bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center justify-center border border-red-50 dark:border-slate-700/50 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-2 text-red-500 dark:text-red-400">
                     <User className="w-4 h-4" />
                   </div>
                   <p className="text-[10px] text-gray-400 dark:text-muted-foreground uppercase font-bold tracking-widest mb-1">Gender</p>
-                  <p className="font-semibold text-gray-900 dark:text-foreground text-lg">{profile?.gender || '-'}</p>
+                  {isEditing ? (
+                    <select name="gender" value={formData.gender} onChange={handleChange as any} className="w-full text-center bg-transparent border-b border-red-200 dark:border-red-900/50 outline-none text-gray-900 dark:text-foreground font-semibold">
+                      <option value="">Select</option>
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  ) : (
+                    <p className="font-semibold text-gray-900 dark:text-foreground text-lg">{profile?.gender || '-'}</p>
+                  )}
                 </div>
              </div>
           </div>
 
           {/* Bonus Widget: Next Eligible Donation */}
-          <div className="bg-white dark:bg-card rounded-[2rem] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-none flex items-center space-x-6 border-l-4 border-l-red-500">
-            <div className="relative w-16 h-16 flex-shrink-0">
-              <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
-                <path className="text-gray-100" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-                <path className="text-red-500" strokeDasharray="60, 100" strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center flex-col">
-                <span className="text-sm font-bold text-gray-900">30</span>
+          {eligibility && (
+            <div className="bg-white dark:bg-card rounded-[2rem] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.06)] dark:shadow-none flex items-center space-x-6 border-l-4 border-l-red-500 transition-colors">
+              <div className="relative w-16 h-16 flex-shrink-0">
+                <svg className="w-16 h-16 transform -rotate-90" viewBox="0 0 36 36">
+                  <path className="text-gray-100 dark:text-slate-800 transition-colors" strokeWidth="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                  <path 
+                    className="text-red-500 transition-all duration-1000 ease-out" 
+                    strokeDasharray={`${eligibility.status === 'Eligible' ? 100 : Math.max(0, 100 - (Math.ceil((new Date(eligibility.nextEligibleDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24)) / 90 * 100))}, 100`} 
+                    strokeWidth="3" strokeLinecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                  />
+                </svg>
+                <div className="absolute inset-0 flex items-center justify-center flex-col">
+                  {eligibility.status === 'Eligible' ? (
+                    <Droplet className="w-6 h-6 text-red-500" />
+                  ) : (
+                    <span className="text-sm font-bold text-gray-900 dark:text-white">
+                      {Math.ceil((new Date(eligibility.nextEligibleDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24))}
+                    </span>
+                  )}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gray-900 dark:text-foreground mb-1">Next Donation</h4>
+                <p className="text-xs text-gray-500 dark:text-slate-400 font-medium">
+                  {eligibility.status === 'Eligible' ? 'You are eligible to donate today!' : `Eligible in ${Math.ceil((new Date(eligibility.nextEligibleDate).getTime() - new Date().getTime()) / (1000 * 3600 * 24))} days.`}
+                </p>
               </div>
             </div>
-            <div>
-              <h4 className="text-sm font-bold text-gray-900 dark:text-foreground mb-1">Next Donation</h4>
-              <p className="text-xs text-gray-500 font-medium">Eligible in 30 days. Stay healthy!</p>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* Right Column: Editable Info & Emergency Contact */}
@@ -158,15 +194,15 @@ const DonorProfile = () => {
                 {isEditing ? (
                   <input type="text" name="mobileNumber" value={formData.mobileNumber} onChange={handleChange} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border outline-none focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-foreground transition-all font-medium" />
                 ) : profile?.mobileNumber ? (
-                  <div className="flex items-center text-gray-900 dark:text-foreground bg-gray-50 dark:bg-card p-4 rounded-xl font-medium">
-                    <Phone className="w-5 h-5 mr-3 text-red-500" /> {profile.mobileNumber}
+                  <div className="flex items-center text-gray-900 dark:text-foreground bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl font-medium border border-transparent dark:border-slate-700/50 transition-colors">
+                    <Phone className="w-5 h-5 mr-3 text-red-500 dark:text-red-400" /> {profile.mobileNumber}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-dashed border-gray-300 font-medium">
+                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 font-medium transition-colors">
                     <div className="flex items-center">
                       <Phone className="w-5 h-5 mr-3" /> Not provided
                     </div>
-                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 font-bold hover:underline">+ Add</button>
+                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">+ Add</button>
                   </div>
                 )}
               </div>
@@ -175,15 +211,15 @@ const DonorProfile = () => {
                 {isEditing ? (
                   <textarea name="address" value={formData.address} onChange={handleChange} rows={2} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border outline-none focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-foreground transition-all font-medium" />
                 ) : profile?.address ? (
-                  <div className="flex items-center text-gray-900 dark:text-foreground bg-gray-50 dark:bg-card p-4 rounded-xl font-medium">
-                    <MapPin className="w-5 h-5 mr-3 text-red-500 flex-shrink-0" /> {profile.address}
+                  <div className="flex items-center text-gray-900 dark:text-foreground bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl font-medium border border-transparent dark:border-slate-700/50 transition-colors">
+                    <MapPin className="w-5 h-5 mr-3 text-red-500 dark:text-red-400 flex-shrink-0" /> {profile.address}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-dashed border-gray-300 font-medium">
+                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 font-medium transition-colors">
                     <div className="flex items-center">
                       <MapPin className="w-5 h-5 mr-3 flex-shrink-0" /> Not provided
                     </div>
-                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 font-bold hover:underline">+ Add</button>
+                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">+ Add</button>
                   </div>
                 )}
               </div>
@@ -205,13 +241,13 @@ const DonorProfile = () => {
                 {isEditing ? (
                   <input type="text" name="emergencyContactName" value={formData.emergencyContactName} onChange={handleChange} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border outline-none focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-foreground transition-all font-medium" />
                 ) : profile?.emergencyContact?.name ? (
-                  <div className="text-gray-900 dark:text-foreground bg-gray-50 dark:bg-card p-4 rounded-xl font-medium">
+                  <div className="text-gray-900 dark:text-foreground bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl font-medium border border-transparent dark:border-slate-700/50 transition-colors">
                     {profile.emergencyContact.name}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-dashed border-gray-300 font-medium">
+                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 font-medium transition-colors">
                     Not provided
-                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 font-bold hover:underline">+ Add</button>
+                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">+ Add</button>
                   </div>
                 )}
               </div>
@@ -220,13 +256,13 @@ const DonorProfile = () => {
                 {isEditing ? (
                   <input type="text" name="emergencyContactRelationship" value={formData.emergencyContactRelationship} onChange={handleChange} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border outline-none focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-foreground transition-all font-medium" />
                 ) : profile?.emergencyContact?.relationship ? (
-                  <div className="text-gray-900 dark:text-foreground bg-gray-50 dark:bg-card p-4 rounded-xl font-medium">
+                  <div className="text-gray-900 dark:text-foreground bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl font-medium border border-transparent dark:border-slate-700/50 transition-colors">
                     {profile.emergencyContact.relationship}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-dashed border-gray-300 font-medium">
+                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 font-medium transition-colors">
                     Not provided
-                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 font-bold hover:underline">+ Add</button>
+                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">+ Add</button>
                   </div>
                 )}
               </div>
@@ -235,15 +271,15 @@ const DonorProfile = () => {
                 {isEditing ? (
                   <input type="text" name="emergencyContactNumber" value={formData.emergencyContactNumber} onChange={handleChange} className="w-full p-4 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border outline-none focus:ring-2 focus:ring-red-500 focus:bg-white dark:focus:bg-slate-800 text-gray-900 dark:text-foreground transition-all font-medium" />
                 ) : profile?.emergencyContact?.mobileNumber ? (
-                  <div className="flex items-center text-gray-900 dark:text-foreground bg-gray-50 dark:bg-card p-4 rounded-xl font-medium">
-                    <Phone className="w-5 h-5 mr-3 text-red-500" /> {profile.emergencyContact.mobileNumber}
+                  <div className="flex items-center text-gray-900 dark:text-foreground bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl font-medium border border-transparent dark:border-slate-700/50 transition-colors">
+                    <Phone className="w-5 h-5 mr-3 text-red-500 dark:text-red-400" /> {profile.emergencyContact.mobileNumber}
                   </div>
                 ) : (
-                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 p-4 rounded-xl border border-dashed border-gray-300 font-medium">
+                  <div className="flex items-center justify-between text-gray-400 dark:text-muted-foreground bg-gray-50/50 dark:bg-slate-800/30 p-4 rounded-xl border border-dashed border-gray-300 dark:border-slate-700 font-medium transition-colors">
                     <div className="flex items-center">
                       <Phone className="w-5 h-5 mr-3" /> Not provided
                     </div>
-                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 font-bold hover:underline">+ Add</button>
+                    <button onClick={() => setIsEditing(true)} className="text-xs text-red-600 dark:text-red-400 font-bold hover:underline">+ Add</button>
                   </div>
                 )}
               </div>

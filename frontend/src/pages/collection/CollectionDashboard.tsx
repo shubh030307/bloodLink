@@ -514,11 +514,6 @@ export default function CollectionDashboard() {
               <h3 className="text-xl font-black text-red-900 dark:text-red-100 mb-2">Every Drop Counts</h3>
               <p className="text-sm text-red-800/80 dark:text-red-200/80 mb-6 max-w-[150px]">Thank you for being a part of this life-saving mission.</p>
             </div>
-            {/* Using an inline SVG / Image placeholder for the 3D drop to mimic the template */}
-            <div className="absolute -bottom-4 -right-4 opacity-90 w-32 h-32">
-              <img src="/collection-bg.png" className="w-full h-full object-cover rounded-tl-full opacity-50 dark:hidden" style={{ clipPath: "circle(50% at right bottom)" }} />
-              <img src="/dark-bg.png" className="w-full h-full object-cover rounded-tl-full opacity-50 hidden dark:block" style={{ clipPath: "circle(50% at right bottom)" }} />
-            </div>
           </div>
 
         </div>

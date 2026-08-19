@@ -36,6 +36,9 @@ import DonorHistory from './pages/donor/History';
 import DonorMilestones from './pages/donor/Milestones';
 import DonorProfile from './pages/donor/Profile';
 
+// Common routes
+import Support from './pages/support/Support';
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -80,6 +83,7 @@ function App() {
                 <Route path="/lab/exceptions" element={<LabExceptions />} />
                 
                 {/* Other protected routes */}
+                <Route path="/support" element={<Support />} />
               </Route>
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

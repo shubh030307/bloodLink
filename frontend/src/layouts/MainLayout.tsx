@@ -35,7 +35,6 @@ const MainLayout = () => {
             <NavItem to="/donor/appointments" icon={<Clock />} label="Appointments" active={location.pathname === '/donor/appointments'} />
             <NavItem to="/donor/history" icon={<FileText />} label="History" active={location.pathname === '/donor/history'} />
             <NavItem to="/donor/milestones" icon={<Award />} label="Milestones" active={location.pathname === '/donor/milestones'} />
-            <NavItem to="/donor/rewards" icon={<Gift />} label="Rewards" active={location.pathname === '/donor/rewards'} />
             <NavItem to="/support" icon={<HelpCircle />} label="Help & Support" active={location.pathname === '/support'} />
           </>
         );
