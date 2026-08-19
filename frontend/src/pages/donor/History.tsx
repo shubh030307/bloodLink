@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Calendar, Download, Droplet, Star } from 'lucide-react';
 import api from '../../services/api';
+import CertificateModal from '../../components/donor/CertificateModal';
+import { useAuth } from '../../context/AuthContext';
 
 const DonorHistory = () => {
+  const { user } = useAuth();
   const [history, setHistory] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [feedbackDonationId, setFeedbackDonationId] = useState<string | null>(null);
   const [rating, setRating] = useState(5);
   const [comments, setComments] = useState('');
+  const [selectedCertificate, setSelectedCertificate] = useState<any>(null);
 
   const fetchHistory = async () => {
     try {
@@ -38,6 +42,15 @@ const DonorHistory = () => {
       fetchHistory(); // refresh to show feedback submitted state if needed
     } catch (error) {
       alert("Failed to submit feedback");
+    }
+  };
+
+  const handleDownloadCertificate = async (donationId: string) => {
+    try {
+      const response = await api.post('/certificates/generate', { donationId });
+      setSelectedCertificate(response.data);
+    } catch (error: any) {
+      alert(error.response?.data?.error || 'Failed to generate certificate');
     }
   };
 
@@ -84,7 +97,10 @@ const DonorHistory = () => {
                     <td className="p-4 text-sm text-right space-x-2">
                       {donation.status === 'Completed' && (
                         <>
-                          <button className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center text-xs bg-blue-50 px-2 py-1 rounded-md transition-colors">
+                          <button 
+                            onClick={() => handleDownloadCertificate(donation.id)}
+                            className="text-blue-600 hover:text-blue-800 font-medium inline-flex items-center text-xs bg-blue-50 px-2 py-1 rounded-md transition-colors"
+                          >
                             <Download className="w-3 h-3 mr-1" /> Certificate
                           </button>
                           <button 
@@ -148,6 +164,13 @@ const DonorHistory = () => {
           </div>
         </div>
       )}
+
+      <CertificateModal 
+        isOpen={!!selectedCertificate}
+        onClose={() => setSelectedCertificate(null)}
+        certificateData={selectedCertificate}
+        donorName={user?.name || 'Valued Donor'}
+      />
     </div>
   );
 };

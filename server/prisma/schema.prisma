@@ -67,7 +67,8 @@ model Donor {
   emergencyContact EmergencyContact?
   appointments     Appointment[]
   certificates     Certificate[]
-  milestones       Milestone[]
+  milestoneAchievements DonorMilestoneAchievement[]
+  rewardClaims     RewardClaim[]
 }
 
 model EmergencyContact {
@@ -399,18 +400,70 @@ model Certificate {
   certificateNumber String   @unique
   donorId           String
   donor             Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
-  visitId           String // Linked to the specific visit/donation
+  visitId           String? // For regular donation certificates
+  milestoneId       String? // For milestone certificates
+  type              String   @default("DONATION") // DONATION, MILESTONE
   certificateUrl    String?
   issuedAt          DateTime @default(now())
 }
 
-model Milestone {
-  id         String   @id @default(uuid())
-  donorId    String
-  donor      Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
-  level      Int
-  badgeName  String
-  achievedAt DateTime @default(now())
+model DonorMilestone {
+  id                 String   @id @default(uuid())
+  code               String   @unique
+  name               String
+  requiredDonations  Int
+  description        String
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  achievements       DonorMilestoneAchievement[]
+  rewards            MilestoneReward[]
+}
+
+model DonorMilestoneAchievement {
+  id                     String   @id @default(uuid())
+  donorId                String
+  donor                  Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  milestoneId            String
+  milestone              DonorMilestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  donationCountAtUnlock  Int
+  unlockedAt             DateTime @default(now())
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  @@unique([donorId, milestoneId])
+}
+
+model MilestoneReward {
+  id                  String   @id @default(uuid())
+  milestoneId         String
+  milestone           DonorMilestone @relation(fields: [milestoneId], references: [id], onDelete: Cascade)
+  rewardName          String
+  rewardType          String // PHYSICAL, DIGITAL
+  stockQuantity       Int      @default(0)
+  lowStockThreshold   Int      @default(10)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  claims              RewardClaim[]
+}
+
+model RewardClaim {
+  id          String   @id @default(uuid())
+  donorId     String
+  donor       Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  milestoneId String
+  rewardId    String
+  reward      MilestoneReward @relation(fields: [rewardId], references: [id])
+  status      String   @default("ELIGIBLE") // ELIGIBLE, CLAIMED, READY_FOR_COLLECTION, COLLECTED, OUT_OF_STOCK
+  tshirtSize  String?
+  claimedAt   DateTime?
+  collectedAt DateTime?
+  collectedBy String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 model Notification {

@@ -130,36 +130,77 @@ const DonorDashboard = () => {
           </div>
         </div>
 
-        {/* Life Saver Milestone (4 cols) */}
+        {/* Strict Donor Milestone Card (4 cols) */}
         <div className="lg:col-span-4 bg-white dark:bg-slate-800 rounded-[2rem] p-8 shadow-sm dark:shadow-none border border-gray-100 dark:border-slate-700 flex flex-col justify-between">
-          <div>
-            <div className="flex items-start mb-6">
-              <Award className="w-6 h-6 text-yellow-500 mr-3 mt-0.5" />
+          
+          {milestones?.currentLevel && milestones.currentLevel.code === 'BLOODLINK_LEGEND' ? (
+            // LEGEND STATE
+            <div className="h-full flex flex-col justify-center text-center items-center">
+              <div className="w-16 h-16 bg-yellow-100 dark:bg-yellow-900/30 rounded-full flex items-center justify-center mb-4">
+                <span className="text-3xl">👑</span>
+              </div>
+              <h3 className="text-xl font-black text-gray-900 dark:text-white tracking-tight uppercase mb-1">
+                BLOODLINK LEGEND
+              </h3>
+              <p className="text-sm font-bold text-blood-600 dark:text-blood-400 uppercase tracking-widest mb-6">
+                {milestones.verifiedDonations}+ VERIFIED DONATIONS
+              </p>
+              <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600 w-full mb-6">
+                <p className="text-sm text-gray-700 dark:text-slate-300 font-medium leading-relaxed">
+                  You've reached the highest<br/>BloodLink milestone.
+                </p>
+              </div>
+              <Link to="/donor/milestones" className="w-full py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-white text-sm font-bold rounded-xl transition-colors">
+                VIEW REWARDS
+              </Link>
+            </div>
+          ) : (
+            // NORMAL STATE
+            <div className="h-full flex flex-col justify-between">
               <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Life Saver Milestone</h3>
-                <p className="text-sm text-gray-500 dark:text-slate-400">Level {milestones?.currentLevel || 1} Milestone</p>
-              </div>
-            </div>
-
-            <div className="flex justify-center mb-6">
-              <div className="relative w-32 h-32 rounded-full border-[12px] border-gray-100 dark:border-slate-700 flex items-center justify-center">
-                <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="44" fill="none" stroke="#eacb45" strokeWidth="12" strokeDasharray="276" strokeDashoffset={276 - (276 * ((milestones?.donationsInCurrentLevel || 0) / 5))} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s ease-in-out' }} />
-                </svg>
-                <div className="text-center">
-                  <p className="text-2xl font-black text-gray-900 dark:text-white">{milestones?.donationsInCurrentLevel || 0}/5</p>
-                  <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Donations</p>
+                <div className="flex flex-col items-center text-center mb-6 border-b border-gray-100 dark:border-slate-700 pb-6">
+                  <div className="w-12 h-12 bg-gray-100 dark:bg-slate-700 rounded-full flex items-center justify-center mb-3">
+                    <span className="text-2xl">
+                      {!milestones?.currentLevel ? '🩸' : 
+                       milestones.currentLevel.code === 'FIRST_DROP' ? '🩸' : 
+                       milestones.currentLevel.code === 'LIFE_SAVER' ? '🛡️' : '🏆'}
+                    </span>
+                  </div>
+                  <h3 className="text-lg font-black text-gray-900 dark:text-white tracking-tight uppercase mb-1">
+                    {milestones?.currentLevel?.name || 'NO MILESTONE'}
+                  </h3>
+                  <p className="text-xs font-bold text-blood-600 dark:text-blood-400 uppercase tracking-widest">
+                    {milestones?.verifiedDonations || 0} VERIFIED DONATIONS
+                  </p>
                 </div>
+                
+                {milestones?.nextLevel && (
+                  <div>
+                    <p className="text-xs text-gray-400 dark:text-slate-500 font-bold uppercase tracking-widest mb-2 text-center">Next milestone:</p>
+                    <div className="bg-slate-50 dark:bg-slate-700/50 p-4 rounded-xl border border-slate-100 dark:border-slate-600 mb-6 text-center">
+                      <h4 className="font-bold text-gray-900 dark:text-white uppercase">{milestones.nextLevel.name}</h4>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-3">{milestones.nextLevel.requiredDonations} DONATIONS</p>
+                      
+                      <p className="text-xs text-gray-600 dark:text-slate-300 font-bold mb-2">
+                        {milestones.nextLevel.requiredDonations - (milestones.verifiedDonations || 0)} more verified donations
+                      </p>
+                      
+                      <div className="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2.5 overflow-hidden">
+                        <div 
+                          className="bg-blood-500 h-2.5 rounded-full transition-all duration-1000" 
+                          style={{ width: `${Math.min(((milestones.verifiedDonations || 0) / milestones.nextLevel.requiredDonations) * 100, 100)}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
+              
+              <Link to="/donor/milestones" className="w-full py-3 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 text-gray-800 dark:text-white text-sm font-bold rounded-xl transition-colors text-center block">
+                [VIEW MILESTONES]
+              </Link>
             </div>
-          </div>
-
-          <div className="text-center">
-            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-3">{milestones?.donationsToNextLevel || 5} more donations to reach Level {(milestones?.currentLevel || 1) + 1}</p>
-            <Link to="/donor/milestones" className="text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 flex items-center justify-center transition-colors">
-              View Milestones <ChevronRight className="w-4 h-4 ml-1" />
-            </Link>
-          </div>
+          )}
         </div>
       </div>
 

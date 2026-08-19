@@ -20,6 +20,7 @@ import auditRoutes from './routes/audit.routes';
 import notificationRoutes from './routes/notification.routes';
 import certificateRoutes from './routes/certificate.routes';
 import staffRoutes from './routes/staff.routes';
+import milestoneRoutes from './routes/milestone.routes';
 import path from 'path';
 
 dotenv.config();
@@ -60,6 +61,7 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/staff', staffRoutes);
+app.use('/api/milestones', milestoneRoutes);
 
 // Socket.io for real-time updates
 io.on('connection', (socket) => {
