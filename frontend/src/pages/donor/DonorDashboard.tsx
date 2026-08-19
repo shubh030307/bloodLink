@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar, Droplet, Award, Bell, CheckCircle, Clock, AlertTriangle, Users, Heart, FileText, ChevronRight, AlertCircle, Building2, MapPin } from 'lucide-react';
+import { Calendar, Droplet, Bell, CheckCircle, Clock, AlertTriangle, Users, FileText, ChevronRight, AlertCircle, Building2, MapPin } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import api from '../../services/api';
 import { useAuth } from '../../context/AuthContext';

@@ -19,9 +19,9 @@ const Login = () => {
     try {
       const response = await api.post('/auth/login', { email, password });
       const { token, user } = response.data;
-      
+
       login(token, user);
-      
+
       navigate('/');
     } catch (err: any) {
       console.error("Login failed", err);
@@ -40,7 +40,7 @@ const Login = () => {
       </div>
 
       <div className="w-full mb-10 text-center lg:text-left">
-        <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Welcome Back</h2>
+        <h2 className="text-3xl lg:text-4xl font-black text-gray-900 dark:text-white tracking-tight mb-2">Welcome</h2>
         <p className="text-gray-500 dark:text-slate-400 font-medium">Enter your credentials to access your account.</p>
       </div>
 
@@ -58,17 +58,17 @@ const Login = () => {
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blood-500 transition-colors">
               <Mail className="w-5 h-5" />
             </div>
-            <input 
-              type="email" 
+            <input
+              type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-blood-500 focus:ring-4 focus:ring-blood-500/10 transition-all font-medium placeholder:text-gray-400 shadow-sm" 
+              className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-blood-500 focus:ring-4 focus:ring-blood-500/10 transition-all font-medium placeholder:text-gray-400 shadow-sm"
               placeholder="you@example.com"
             />
           </div>
         </div>
-        
+
         <div className="space-y-1.5">
           <div className="flex justify-between items-center">
             <label className="block text-sm font-bold text-gray-700 dark:text-slate-300">Password</label>
@@ -78,19 +78,19 @@ const Login = () => {
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-400 group-focus-within:text-blood-500 transition-colors">
               <Lock className="w-5 h-5" />
             </div>
-            <input 
-              type="password" 
+            <input
+              type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-blood-500 focus:ring-4 focus:ring-blood-500/10 transition-all font-medium placeholder:text-gray-400 shadow-sm" 
+              className="w-full pl-11 pr-4 py-3.5 bg-white dark:bg-slate-800 border-2 border-gray-100 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white focus:outline-none focus:border-blood-500 focus:ring-4 focus:ring-blood-500/10 transition-all font-medium placeholder:text-gray-400 shadow-sm"
               placeholder="••••••••"
             />
           </div>
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={loading}
           className="w-full py-4 px-6 bg-blood-600 hover:bg-blood-700 text-white rounded-xl font-bold flex justify-center items-center shadow-lg shadow-blood-500/30 hover:shadow-blood-500/50 transition-all transform hover:-translate-y-0.5 active:translate-y-0 group"
         >
@@ -106,7 +106,7 @@ const Login = () => {
           )}
         </button>
       </form>
-      
+
       <div className="mt-10 text-center text-sm font-medium text-gray-600 dark:text-slate-400">
         Don't have an account? <Link to="/register" className="font-bold text-blood-600 dark:text-blood-400 hover:text-blood-700 dark:hover:text-blood-300 ml-1">Create one now</Link>
       </div>

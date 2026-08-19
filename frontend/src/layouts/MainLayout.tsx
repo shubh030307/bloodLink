@@ -1,7 +1,7 @@
 import React from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, Users, Activity, Calendar, Settings, FileText, Search, Award, Clock, User, Moon, Sun, ClipboardList, Microscope, Bell, Gift, HelpCircle, Plus } from 'lucide-react';
+import { LogOut, Home, Users, Activity, Calendar, Settings, FileText, Search, Award, Clock, User, Moon, Sun, ClipboardList, Microscope, Bell, HelpCircle, Plus, MapPin } from 'lucide-react';
 
 const MainLayout = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -46,6 +46,7 @@ const MainLayout = () => {
             <NavItem to="/inventory" icon={<Activity />} label="Inventory" active={location.pathname === '/inventory'} />
             <NavItem to="/requests" icon={<FileText />} label="Requests" active={location.pathname === '/requests'} />
             <NavItem to="/staff" icon={<Users />} label="Staff & Facilities" active={location.pathname === '/staff'} />
+            <NavItem to="/camps" icon={<MapPin />} label="Donation Camps" active={location.pathname === '/camps'} />
             <NavItem to="/reports" icon={<FileText />} label="Reports" active={location.pathname === '/reports'} />
             <NavItem to="/settings" icon={<Settings />} label="Settings" active={location.pathname === '/settings'} />
           </>
@@ -57,14 +58,16 @@ const MainLayout = () => {
             <NavItem to="/appointments" icon={<Calendar />} label="Appointments" active={location.pathname === '/appointments'} />
             <NavItem to="/appointments" icon={<Plus />} label="Book Appointment" active={false} />
             <NavItem to="/donors" icon={<Users />} label="Donors" active={location.pathname === '/donors'} />
+            <NavItem to="/camps" icon={<MapPin />} label="Donation Camps" active={location.pathname === '/camps'} />
           </>
         );
 
       case 'CollectionStaff':
         return (
           <>
-            <NavItem to="/" icon={<Home />} label="Dashboard" active={location.pathname === '/'} />
-            <NavItem to="/collection" icon={<ClipboardList />} label="Collection" active={location.pathname === '/collection'} />
+            <NavItem to="/appointments" icon={<Calendar />} label="Appointments" active={location.pathname === '/appointments'} />
+            <NavItem to="/camps" icon={<MapPin />} label="Donation Camps" active={location.pathname === '/camps'} />
+            <NavItem to="/collection" icon={<ClipboardList />} label="Collections" active={location.pathname === '/collection'} />
           </>
         );
       case 'LabTechnician':
@@ -98,7 +101,9 @@ const MainLayout = () => {
         <div className="p-6 overflow-y-auto custom-scrollbar">
           <div className="flex items-center justify-center mb-8">
             {/* Provide the dark mode logo if applicable */}
-            <img src={darkMode ? "/dark-mode-2.png" : "/logo-chatgpt.png"} alt="bloodLink" className="h-14 w-auto object-contain rounded-md mix-blend-multiply dark:mix-blend-normal" />
+            <Link to="/">
+              <img src={darkMode ? "/dark-mode-2.png" : "/logo-chatgpt.png"} alt="bloodLink" className="h-14 w-auto object-contain rounded-md mix-blend-multiply dark:mix-blend-normal" />
+            </Link>
           </div>
 
           <nav className="space-y-1">

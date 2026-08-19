@@ -19,6 +19,7 @@ import Appointments from './pages/appointments/Appointments';
 import Requests from './pages/requests/Requests';
 import FindBlood from './pages/search/FindBlood';
 import CollectionDashboard from './pages/collection/CollectionDashboard';
+import Camps from './pages/camps/Camps';
 
 // Lab Routes
 import LabDashboard from './pages/lab/LabDashboard';
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/inventory" element={<Inventory />} />
                 <Route path="/requests" element={<Requests />} />
                 <Route path="/donors" element={<Donors />} />
+                <Route path="/camps" element={<Camps />} />
                 <Route path="/appointments" element={<Appointments />} />
                 <Route path="/collection" element={<CollectionDashboard />} />
                 <Route path="/staff" element={<StaffManagement />} />

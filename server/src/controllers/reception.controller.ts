@@ -36,22 +36,7 @@ export const scanAppointmentQr = async (req: Request, res: Response): Promise<vo
 
     // --- 3-Hour Buffer Validation ---
     // The appointment slot is e.g. "12:00 PM"
-    let hours = 0;
-    let minutes = 0;
-    try {
-      const [time, modifier] = appointment.timeSlot.split(' ');
-      const [h, m] = time.split(':');
-      hours = parseInt(h, 10);
-      minutes = parseInt(m || '0', 10);
-      if (hours === 12) hours = 0;
-      if (modifier === 'PM' || modifier === 'pm') hours += 12;
-    } catch(e) {
-      // Fallback
-      hours = 9; 
-    }
-    
-    const apptTime = new Date(appointment.date);
-    apptTime.setHours(hours, minutes, 0, 0);
+    const apptTime = new Date(appointment.donationSlot.startTime);
 
     const now = new Date();
     // 3 hours = 3 * 60 * 60 * 1000 = 10800000 ms
@@ -249,10 +234,10 @@ export const assignQueue = async (req: Request, res: Response): Promise<void> =>
       // ---- Queue Generation ----
       // Find an available room and counter
       const room = await tx.room.findFirst({
-         where: { bloodBankId: appointment.bloodBankId, status: 'AVAILABLE' }
+         where: { bloodBankId: appointment.bloodBankId || undefined, status: 'AVAILABLE' }
       });
       const counter = await tx.counter.findFirst({
-         where: { bloodBankId: appointment.bloodBankId, status: 'AVAILABLE' }
+         where: { bloodBankId: appointment.bloodBankId || undefined, status: 'AVAILABLE' }
       });
 
       const today = new Date().toISOString().split('T')[0].replace(/-/g, '');

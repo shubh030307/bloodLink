@@ -46,7 +46,7 @@ export const getCollectionQueue = async (req: AuthRequest, res: Response): Promi
       bloodGroup: v.appointment.donor.bloodGroup,
       medicalStatus: 'MEDICALLY_CLEARED',
       checkInTime: v.queue?.createdAt || new Date(),
-      center: v.appointment.bloodBank.name
+      center: v.appointment.bloodBank?.name || 'Unknown'
     }));
 
     res.json(queue);
@@ -103,7 +103,7 @@ export const scanVisitQr = async (req: AuthRequest, res: Response): Promise<void
         donorName: visit.appointment.donor.user.name,
         bloodGroup: visit.appointment.donor.bloodGroup,
         centerId: visit.appointment.bloodBankId,
-        centerName: visit.appointment.bloodBank.name,
+        centerName: visit.appointment.bloodBank?.name || 'Unknown',
         status: visit.status
       }
     });
@@ -153,7 +153,7 @@ export const startCollection = async (req: AuthRequest, res: Response): Promise<
           donationId: donation.id,
           visitId: visitId,
           collectionStaffId: userId,
-          centerId: visit.appointment.bloodBankId,
+          centerId: visit.appointment.bloodBankId as string,
           startTime: new Date(),
           collectionStatus: 'IN_PROGRESS'
         }
@@ -318,13 +318,13 @@ export const completeCollection = async (req: AuthRequest, res: Response): Promi
       // Generate Sticker & Barcode natively
       const onDemandBatchNumber = `ON-DEMAND-PRINT-${donation.visit.appointment.bloodBankId}`;
       let onDemandBatch = await tx.bloodBagLabelBatch.findFirst({
-        where: { centerId: donation.visit.appointment.bloodBankId, batchNumber: onDemandBatchNumber }
+        where: { centerId: donation.visit.appointment.bloodBankId as string, batchNumber: onDemandBatchNumber }
       });
       if (!onDemandBatch) {
         onDemandBatch = await tx.bloodBagLabelBatch.create({
           data: {
             batchNumber: onDemandBatchNumber,
-            centerId: donation.visit.appointment.bloodBankId,
+            centerId: donation.visit.appointment.bloodBankId as string,
             prefix: 'STK',
             startNumber: 1,
             endNumber: 999999,
@@ -341,7 +341,7 @@ export const completeCollection = async (req: AuthRequest, res: Response): Promi
         data: {
           stickerId: stickerIdStr,
           batchId: onDemandBatch.id,
-          centerId: donation.visit.appointment.bloodBankId,
+          centerId: donation.visit.appointment.bloodBankId as string,
           status: 'USED', 
           assignedAt: new Date(),
           assignedById: userId,
@@ -491,7 +491,7 @@ export const verifyOtp = async (req: AuthRequest, res: Response): Promise<void> 
           donationId: donationId,
           bloodBagLabelId: updatedDonation.stickerId,
           bloodGroup: updatedDonation.visit.appointment.donor.bloodGroup,
-          collectionCenterId: updatedDonation.visit.appointment.bloodBankId,
+          collectionCenterId: updatedDonation.visit.appointment.bloodBankId as string,
           status: 'TESTING'
         }
       });

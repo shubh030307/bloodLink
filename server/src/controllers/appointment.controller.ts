@@ -2,130 +2,203 @@ import { Request, Response } from 'express';
 import { prisma } from '../server';
 import crypto from 'crypto';
 
-export const bookAppointment = async (req: Request, res: Response): Promise<void> => {
+export const bookAppointment = async (req: Request, res: Response): Promise<any> => {
   try {
     const { userId } = (req as any).user;
-    const { bloodBankId, date, timeSlot, donationSlotId } = req.body;
+    const { donationSlotId } = req.body;
     
+    if (!donationSlotId) {
+      res.status(400).json({ success: false, code: 'MISSING_SLOT', message: 'donationSlotId is required' });
+      return;
+    }
+
     const donor = await prisma.donor.findUnique({ where: { userId } });
     if (!donor) {
-      res.status(404).json({ error: 'Donor not found' });
+      res.status(404).json({ success: false, code: 'DONOR_NOT_FOUND', message: 'Donor not found' });
       return;
     }
 
-    // Find or create slot dynamically if it's a dummy or missing
-    let slot = await prisma.donationSlot.findFirst({
-      where: { bloodBankId, date: new Date(date), timeSlot },
-      include: { appointments: true }
-    });
-
-    if (!slot) {
-      slot = await prisma.donationSlot.create({
-        data: {
-          bloodBankId,
-          date: new Date(date),
-          timeSlot,
-          capacity: 10 // Default capacity for dynamically created slots
-        },
-        include: { appointments: true }
+    // STRICT Booking via Serializable Transaction
+    const appointment = await prisma.$transaction(async (tx) => {
+      // 1. Fetch the slot and lock it for update (we count appointments later but need to ensure it's valid)
+      const slot = await tx.donationSlot.findUnique({
+        where: { id: donationSlotId },
+        include: {
+          _count: { select: { appointments: true } },
+          camp: true,
+          bloodBank: true
+        }
       });
-    }
 
-    if (slot.appointments && slot.appointments.length >= slot.capacity) {
-      res.status(400).json({ error: 'Slot is full' });
-      return;
-    }
-    
-    // override the donationSlotId with the real one
-    const realDonationSlotId = slot.id;
-    
-    const count = await prisma.appointment.count();
-    const appointmentNumber = `APT-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
-
-    // Generate secure opaque QR token (e.g., APT-TOKEN-8F92XK)
-    const qrToken = `APT-TOKEN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
-    const qrExpiresAt = new Date(new Date(date).getTime() + 5 * 60 * 60 * 1000); // Expires 5 hours after appointment start date/time (configurable via settings but hardcoded for now)
-
-    const appointment = await prisma.appointment.create({
-      data: {
-        appointmentNumber,
-        donorId: donor.id,
-        bloodBankId,
-        donationSlotId: realDonationSlotId,
-        date: new Date(date),
-        timeSlot,
-        status: 'BOOKED',
-        qrToken,
-        qrExpiresAt
+      if (!slot) throw new Error('SLOT_NOT_FOUND');
+      
+      // Verify camp status if applicable
+      if (slot.camp && slot.camp.status !== 'OPEN') {
+        throw new Error('CAMP_NOT_OPEN');
       }
-    });
 
-    res.status(201).json(appointment);
-  } catch (error) {
+      // 2. Capacity Check
+      if (slot._count.appointments >= slot.capacity) {
+        throw new Error('SLOT_FULL');
+      }
+
+      // 3. Bank Daily Limit (Max 30)
+      if (slot.bloodBankId) {
+        // Count total appointments for this bank on this specific date
+        const startOfDay = new Date(slot.date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setDate(endOfDay.getDate() + 1);
+
+        const dailyCount = await tx.appointment.count({
+          where: {
+            bloodBankId: slot.bloodBankId,
+            date: { gte: startOfDay, lt: endOfDay },
+            status: { notIn: ['CANCELLED', 'EXPIRED'] }
+          }
+        });
+
+        if (dailyCount >= 30) throw new Error('BANK_LIMIT_REACHED');
+      }
+
+      // 4. Duplicate Donor Booking Prevention
+      const existing = await tx.appointment.findFirst({
+        where: {
+          donorId: donor.id,
+          date: slot.date,
+          status: { notIn: ['CANCELLED', 'EXPIRED'] }
+        }
+      });
+      if (existing) throw new Error('DUPLICATE_BOOKING');
+
+      const count = await tx.appointment.count();
+      const appointmentNumber = `APT-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
+      const qrToken = `APT-TOKEN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      const qrExpiresAt = new Date(slot.startTime.getTime() + 5 * 60 * 60 * 1000); 
+
+      // 5. Create Appointment
+      return await tx.appointment.create({
+        data: {
+          appointmentNumber,
+          donorId: donor.id,
+          bloodBankId: slot.bloodBankId,
+          campId: slot.campId,
+          donationSlotId: slot.id,
+          date: slot.date,
+          status: 'BOOKED',
+          qrToken,
+          qrExpiresAt
+        }
+      });
+    }, { isolationLevel: 'Serializable' });
+
+    res.status(201).json({ success: true, appointment });
+  } catch (error: any) {
     console.error("BOOKING ERROR:", error);
-    res.status(500).json({ error: 'Failed to book appointment' });
+    
+    if (error.message === 'SLOT_NOT_FOUND') return res.status(404).json({ success: false, code: 'SLOT_NOT_FOUND', message: 'Slot not found' });
+    if (error.message === 'CAMP_NOT_OPEN') return res.status(400).json({ success: false, code: 'CAMP_NOT_OPEN', message: 'Camp is not open for booking' });
+    if (error.message === 'SLOT_FULL') return res.status(409).json({ success: false, code: 'SLOT_FULL', message: 'This slot is already full' });
+    if (error.message === 'DUPLICATE_BOOKING') return res.status(409).json({ success: false, code: 'DUPLICATE_BOOKING', message: 'You already have an active booking for this date.' });
+    if (error.message === 'BANK_LIMIT_REACHED') return res.status(409).json({ success: false, code: 'BANK_LIMIT_REACHED', message: 'The blood bank has reached its maximum daily capacity of 30 bookings.' });
+
+    res.status(500).json({ success: false, message: 'Failed to book appointment' });
   }
 };
 
-export const staffBookAppointment = async (req: Request, res: Response): Promise<void> => {
+export const staffBookAppointment = async (req: Request, res: Response): Promise<any> => {
   try {
-    const { donorId, bloodBankId, date, timeSlot } = req.body;
+    const { donorId, donationSlotId } = req.body;
     
+    if (!donationSlotId) {
+      res.status(400).json({ success: false, code: 'MISSING_SLOT', message: 'donationSlotId is required' });
+      return;
+    }
+
     const donor = await prisma.donor.findUnique({ where: { id: donorId } });
     if (!donor) {
-      res.status(404).json({ error: 'Donor not found' });
+      res.status(404).json({ success: false, code: 'DONOR_NOT_FOUND', message: 'Donor not found' });
       return;
     }
 
-    // Find or create slot dynamically if missing
-    let slot = await prisma.donationSlot.findFirst({
-      where: { bloodBankId, date: new Date(date), timeSlot },
-      include: { appointments: true }
-    });
-
-    if (!slot) {
-      slot = await prisma.donationSlot.create({
-        data: {
-          bloodBankId,
-          date: new Date(date),
-          timeSlot,
-          capacity: 10 // Default capacity for dynamically created slots
-        },
-        include: { appointments: true }
+    // STRICT Booking via Serializable Transaction
+    const appointment = await prisma.$transaction(async (tx) => {
+      const slot = await tx.donationSlot.findUnique({
+        where: { id: donationSlotId },
+        include: {
+          _count: { select: { appointments: true } },
+          camp: true,
+          bloodBank: true
+        }
       });
-    }
 
-    if (slot.appointments && slot.appointments.length >= slot.capacity) {
-      res.status(400).json({ error: 'Slot is full' });
-      return;
-    }
-    
-    const realDonationSlotId = slot.id;
-    
-    const count = await prisma.appointment.count();
-    const appointmentNumber = `APT-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
-
-    const qrToken = `APT-TOKEN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
-    const qrExpiresAt = new Date(new Date(date).getTime() + 5 * 60 * 60 * 1000); 
-
-    const appointment = await prisma.appointment.create({
-      data: {
-        appointmentNumber,
-        donorId: donor.id,
-        bloodBankId,
-        donationSlotId: realDonationSlotId,
-        date: new Date(date),
-        timeSlot,
-        status: 'BOOKED',
-        qrToken,
-        qrExpiresAt
+      if (!slot) throw new Error('SLOT_NOT_FOUND');
+      
+      if (slot.camp && slot.camp.status !== 'OPEN') {
+        throw new Error('CAMP_NOT_OPEN');
       }
-    });
 
-    res.status(201).json(appointment);
-  } catch (error) {
+      if (slot._count.appointments >= slot.capacity) {
+        throw new Error('SLOT_FULL');
+      }
+
+      if (slot.bloodBankId) {
+        const startOfDay = new Date(slot.date);
+        startOfDay.setHours(0, 0, 0, 0);
+        const endOfDay = new Date(startOfDay);
+        endOfDay.setDate(endOfDay.getDate() + 1);
+
+        const dailyCount = await tx.appointment.count({
+          where: {
+            bloodBankId: slot.bloodBankId,
+            date: { gte: startOfDay, lt: endOfDay },
+            status: { notIn: ['CANCELLED', 'EXPIRED'] }
+          }
+        });
+
+        if (dailyCount >= 30) throw new Error('BANK_LIMIT_REACHED');
+      }
+
+      const existing = await tx.appointment.findFirst({
+        where: {
+          donorId: donor.id,
+          date: slot.date,
+          status: { notIn: ['CANCELLED', 'EXPIRED'] }
+        }
+      });
+      if (existing) throw new Error('DUPLICATE_BOOKING');
+
+      const count = await tx.appointment.count();
+      const appointmentNumber = `APT-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
+      const qrToken = `APT-TOKEN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      const qrExpiresAt = new Date(slot.startTime.getTime() + 5 * 60 * 60 * 1000); 
+
+      return await tx.appointment.create({
+        data: {
+          appointmentNumber,
+          donorId: donor.id,
+          bloodBankId: slot.bloodBankId,
+          campId: slot.campId,
+          donationSlotId: slot.id,
+          date: slot.date,
+          status: 'BOOKED',
+          qrToken,
+          qrExpiresAt
+        }
+      });
+    }, { isolationLevel: 'Serializable' });
+
+    res.status(201).json({ success: true, appointment });
+  } catch (error: any) {
     console.error("STAFF BOOKING ERROR:", error);
-    res.status(500).json({ error: 'Failed to book appointment' });
+    
+    if (error.message === 'SLOT_NOT_FOUND') return res.status(404).json({ success: false, code: 'SLOT_NOT_FOUND', message: 'Slot not found' });
+    if (error.message === 'CAMP_NOT_OPEN') return res.status(400).json({ success: false, code: 'CAMP_NOT_OPEN', message: 'Camp is not open for booking' });
+    if (error.message === 'SLOT_FULL') return res.status(409).json({ success: false, code: 'SLOT_FULL', message: 'This slot is already full' });
+    if (error.message === 'DUPLICATE_BOOKING') return res.status(409).json({ success: false, code: 'DUPLICATE_BOOKING', message: 'Donor already has an active booking for this date.' });
+    if (error.message === 'BANK_LIMIT_REACHED') return res.status(409).json({ success: false, code: 'BANK_LIMIT_REACHED', message: 'The blood bank has reached its maximum daily capacity of 30 bookings.' });
+
+    res.status(500).json({ success: false, message: 'Failed to book appointment' });
   }
 };
 
@@ -142,6 +215,8 @@ export const getMyAppointments = async (req: Request, res: Response): Promise<vo
       where: { donorId: donor.id },
       include: {
         bloodBank: true,
+        camp: true,
+        donationSlot: true,
         visit: {
           include: {
             donation: {
@@ -198,30 +273,33 @@ export const cancelAppointment = async (req: Request, res: Response): Promise<vo
 
 export const getAvailableSlots = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { centerId, date } = req.query;
-    if (!centerId || !date) {
-      res.status(400).json({ error: 'Center ID and date are required' });
+    const { centerId, campId, date } = req.query;
+    
+    let where: any = {};
+    if (campId) {
+      where = { campId: campId as string };
+    } else if (centerId && date) {
+      const startOfDay = new Date(date as string);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(startOfDay);
+      endOfDay.setDate(endOfDay.getDate() + 1);
+      where = {
+        bloodBankId: centerId as string,
+        date: { gte: startOfDay, lt: endOfDay }
+      };
+    } else {
+      res.status(400).json({ error: 'Provide either campId, or both centerId and date' });
       return;
     }
 
-    const startOfDay = new Date(date as string);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(startOfDay);
-    endOfDay.setDate(endOfDay.getDate() + 1);
-
     const slots = await prisma.donationSlot.findMany({
-      where: {
-        bloodBankId: centerId as string,
-        date: {
-          gte: startOfDay,
-          lt: endOfDay
-        }
-      },
+      where,
       include: {
         _count: {
-          select: { appointments: true }
+          select: { appointments: { where: { status: { notIn: ['CANCELLED', 'EXPIRED'] } } } }
         }
-      }
+      },
+      orderBy: { startTime: 'asc' }
     });
 
     const availableSlots = slots.map(slot => ({
@@ -231,6 +309,7 @@ export const getAvailableSlots = async (req: Request, res: Response): Promise<vo
 
     res.json(availableSlots);
   } catch (error) {
+    console.error("GET SLOTS ERROR", error);
     res.status(500).json({ error: 'Failed to fetch slots' });
   }
 };
@@ -249,7 +328,18 @@ export const getAllAppointments = async (req: Request, res: Response): Promise<v
     const appointments = await prisma.appointment.findMany({
       include: {
         donor: { include: { user: true } },
-        bloodBank: true
+        bloodBank: true,
+        camp: true,
+        donationSlot: true,
+        visit: {
+          include: {
+            donation: {
+              include: {
+                otpVerification: true
+              }
+            }
+          }
+        }
       },
       orderBy: { date: 'desc' }
     });

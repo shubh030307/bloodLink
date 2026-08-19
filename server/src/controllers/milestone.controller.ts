@@ -186,14 +186,14 @@ export const updateRewardStock = async (req: Request, res: Response): Promise<vo
     const { stockQuantity } = req.body;
     
     const updated = await prisma.milestoneReward.update({
-      where: { id },
+      where: { id: id as string },
       data: { stockQuantity }
     });
 
     // Check if we can change OUT_OF_STOCK claims back to ELIGIBLE
     if (stockQuantity > 0) {
       await prisma.rewardClaim.updateMany({
-        where: { rewardId: id, status: 'OUT_OF_STOCK' },
+        where: { rewardId: id as string, status: 'OUT_OF_STOCK' },
         data: { status: 'ELIGIBLE' }
       });
     }

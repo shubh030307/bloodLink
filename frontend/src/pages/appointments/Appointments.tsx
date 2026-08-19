@@ -106,10 +106,13 @@ const Appointments = () => {
                     </span>
                   </td>
                   <td className="p-4 text-sm text-gray-600 dark:text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <span>{new Date(apt.date).toLocaleDateString()}</span>
-                      <span className="text-gray-400">|</span>
-                      <span>{apt.timeSlot}</span>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span>{new Date(apt.date).toLocaleDateString()}</span>
+                        <span className="text-gray-400">|</span>
+                        <span>{apt.donationSlot ? new Date(apt.donationSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">{apt.camp?.name || apt.bloodBank?.name || 'Unknown Location'}</span>
                     </div>
                   </td>
                   <td className="p-4 text-sm">

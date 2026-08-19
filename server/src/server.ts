@@ -21,6 +21,7 @@ import notificationRoutes from './routes/notification.routes';
 import certificateRoutes from './routes/certificate.routes';
 import staffRoutes from './routes/staff.routes';
 import milestoneRoutes from './routes/milestone.routes';
+import campRoutes from './routes/camp.routes';
 import path from 'path';
 
 dotenv.config();
@@ -34,7 +35,13 @@ const io = new Server(httpServer, {
   },
 });
 
-export const prisma = new PrismaClient();
+export const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: "postgresql://postgres.nywhmmjzzezrikacwtdp:BloodLink789%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=5"
+    }
+  }
+});
 
 app.use(cors());
 app.use(expressServer.json());
@@ -62,6 +69,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/certificates', certificateRoutes);
 app.use('/api/staff', staffRoutes);
 app.use('/api/milestones', milestoneRoutes);
+app.use('/api/camps', campRoutes);
 
 // Socket.io for real-time updates
 io.on('connection', (socket) => {

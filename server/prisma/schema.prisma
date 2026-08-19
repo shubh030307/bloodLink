@@ -99,10 +99,13 @@ model BloodBank {
 
 model DonationSlot {
   id           String        @id @default(uuid())
-  bloodBankId  String
-  bloodBank    BloodBank     @relation(fields: [bloodBankId], references: [id], onDelete: Cascade)
+  bloodBankId  String?
+  bloodBank    BloodBank?    @relation(fields: [bloodBankId], references: [id], onDelete: Cascade)
+  campId       String?
+  camp         BloodCamp?    @relation(fields: [campId], references: [id], onDelete: Cascade)
   date         DateTime
-  timeSlot     String
+  startTime    DateTime
+  endTime      DateTime
   capacity     Int           @default(5)
   appointments Appointment[]
 }
@@ -112,12 +115,13 @@ model Appointment {
   appointmentNumber String       @unique // e.g., APT-2026-000321
   donorId           String
   donor             Donor        @relation(fields: [donorId], references: [id])
-  bloodBankId       String
-  bloodBank         BloodBank    @relation(fields: [bloodBankId], references: [id])
+  bloodBankId       String?
+  bloodBank         BloodBank?   @relation(fields: [bloodBankId], references: [id])
+  campId            String?
+  camp              BloodCamp?   @relation(fields: [campId], references: [id])
   donationSlotId    String
   donationSlot      DonationSlot @relation(fields: [donationSlotId], references: [id])
   date              DateTime
-  timeSlot          String
   status            String       @default("BOOKED") // BOOKED, CHECKED_IN, CANCELLED, EXPIRED
 
   qrToken     String?   @unique // e.g., APT-TOKEN-8F92XK
@@ -706,4 +710,22 @@ model StaffProfile {
   
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model BloodCamp {
+  id            String   @id @default(uuid())
+  name          String
+  date          DateTime
+  startTime     DateTime
+  endTime       DateTime
+  location      String
+  capacity      Int      @default(100)
+  slotDuration  Int      @default(30) // Minutes
+  status        String   @default("OPEN") // OPEN, CANCELLED, COMPLETED
+  
+  donationSlots DonationSlot[]
+  appointments  Appointment[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

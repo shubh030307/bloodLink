@@ -14,8 +14,6 @@ const DonorMilestones = () => {
   const [activeClaimId, setActiveClaimId] = useState<string | null>(null);
   const [selectedCertificate, setSelectedCertificate] = useState<any>(null);
 
-  const [showCelebration, setShowCelebration] = useState<any>(null);
-
   useEffect(() => {
     fetchMilestones();
   }, []);

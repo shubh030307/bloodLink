@@ -68,7 +68,7 @@ const DonorAppointments = () => {
                   </span>
                   <span className="text-sm font-medium text-gray-500 dark:text-muted-foreground">ID: {appt.id.substring(0,8).toUpperCase()}</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">{appt.bloodBank?.name || 'Blood Bank'}</h3>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">{appt.camp?.name ? `[CAMP] ${appt.camp.name}` : appt.bloodBank?.name || 'Unknown Location'}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-muted-foreground">
                   <div className="flex items-center">
@@ -77,11 +77,11 @@ const DonorAppointments = () => {
                   </div>
                   <div className="flex items-center">
                     <Clock className="w-4 h-4 mr-2 text-blood-500" />
-                    {appt.timeSlot}
+                    {appt.donationSlot ? new Date(appt.donationSlot.startTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'N/A'}
                   </div>
                   <div className="flex items-center md:col-span-2">
                     <MapPin className="w-4 h-4 mr-2 text-blood-500 shrink-0" />
-                    {appt.bloodBank?.address || 'Address not available'}
+                    {appt.camp?.location || appt.bloodBank?.address || 'Address not available'}
                   </div>
                 </div>
               </div>
@@ -111,21 +111,40 @@ const DonorAppointments = () => {
       )}
 
       {/* Global Full-Screen QR Code Modal */}
-      {activeAppt && qrToken && (
-        <div className="fixed inset-0 bg-white/90 dark:bg-background/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 animate-in fade-in duration-200">
-          <button 
-            onClick={() => setActiveAppt(null)} 
-            className="absolute top-6 right-6 text-gray-500 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-white bg-white dark:bg-card rounded-full p-2 shadow-sm transition-all"
-          >
-            <XCircle className="w-8 h-8" />
-          </button>
-          <div className="bg-white dark:bg-card p-6 rounded-2xl shadow-2xl transform scale-100 animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-border">
-            <QRCode value={qrToken} size={250} />
+      {activeAppt && qrToken && (() => {
+        const activeAppointment = appointments.find(a => a.id === activeAppt);
+        let expiryText = "Expires in 2 hours";
+        if (activeAppointment && activeAppointment.qrExpiresAt) {
+          const diffMs = new Date(activeAppointment.qrExpiresAt).getTime() - new Date().getTime();
+          if (diffMs > 0) {
+            const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+            const diffMins = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            if (diffHours > 0) {
+              expiryText = `Expires in ${diffHours} hour${diffHours > 1 ? 's' : ''} ${diffMins} min`;
+            } else {
+              expiryText = `Expires in ${diffMins} min`;
+            }
+          } else {
+            expiryText = "Expired";
+          }
+        }
+
+        return (
+          <div className="fixed inset-0 bg-white/90 dark:bg-background/90 backdrop-blur-md z-50 flex flex-col items-center justify-center p-4 animate-in fade-in duration-200">
+            <button 
+              onClick={() => setActiveAppt(null)} 
+              className="absolute top-6 right-6 text-gray-500 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-white bg-white dark:bg-card rounded-full p-2 shadow-sm transition-all"
+            >
+              <XCircle className="w-8 h-8" />
+            </button>
+            <div className="bg-white dark:bg-card p-6 rounded-2xl shadow-2xl transform scale-100 animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-border">
+              <QRCode value={qrToken} size={250} />
+            </div>
+            <p className="mt-6 text-xl font-bold text-gray-800 dark:text-foreground">Scan at reception</p>
+            <p className={`mt-2 text-sm font-medium ${expiryText === 'Expired' ? 'text-red-500' : 'text-gray-500 dark:text-muted-foreground'}`}>{expiryText}</p>
           </div>
-          <p className="mt-6 text-xl font-bold text-gray-800 dark:text-foreground">Scan at reception</p>
-          <p className="mt-2 text-sm text-gray-500 dark:text-muted-foreground font-medium">Expires in 2 hours</p>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 };
