@@ -37,12 +37,12 @@ const Login = () => {
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blood-100 text-blood-600 mb-4">
           <Droplet className="w-8 h-8" fill="currentColor" />
         </div>
-        <h2 className="text-3xl font-bold text-gray-900">Welcome Back</h2>
-        <p className="text-gray-500 mt-2">Sign in to manage the blood bank</p>
+        <h2 className="text-3xl font-bold text-gray-900 dark:text-foreground">Welcome Back</h2>
+        <p className="text-gray-500 dark:text-muted-foreground mt-2">Sign in to manage the blood bank</p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 rounded-lg bg-red-50 text-red-600 flex items-center">
+        <div className="mb-6 p-4 rounded-lg bg-destructive/10 text-destructive flex items-center">
           <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
           <span className="text-sm">{error}</span>
         </div>
@@ -56,7 +56,7 @@ const Login = () => {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-4 py-3 glass-input text-gray-900" 
+            className="w-full px-4 py-3 glass-input text-gray-900 dark:text-foreground" 
             placeholder="admin@bloodbank.com"
           />
         </div>
@@ -71,7 +71,7 @@ const Login = () => {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-4 py-3 glass-input text-gray-900" 
+            className="w-full px-4 py-3 glass-input text-gray-900 dark:text-foreground" 
             placeholder="••••••••"
           />
         </div>
@@ -90,7 +90,7 @@ const Login = () => {
         </button>
       </form>
       
-      <div className="mt-8 text-center text-sm text-gray-600">
+      <div className="mt-8 text-center text-sm text-gray-600 dark:text-muted-foreground">
         Don't have an account? <Link to="/register" className="font-medium text-blood-600 hover:text-blood-700">Register now</Link>
       </div>
     </div>

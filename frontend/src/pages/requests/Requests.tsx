@@ -91,14 +91,14 @@ const Requests = () => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      <div className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+      <div className="flex justify-between items-center bg-white dark:bg-card p-6 rounded-2xl shadow-sm border border-gray-100">
         <div className="flex items-center space-x-4">
-          <div className="p-3 bg-red-50 text-red-600 rounded-xl">
+          <div className="p-3 bg-destructive/10 text-destructive rounded-xl">
             <Activity className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-black text-gray-900">Blood Requests</h1>
-            <p className="text-sm text-gray-500 font-medium mt-1">Manage and track hospital blood requirements</p>
+            <h1 className="text-2xl font-black text-gray-900 dark:text-foreground">Blood Requests</h1>
+            <p className="text-sm text-gray-500 dark:text-muted-foreground font-medium mt-1">Manage and track hospital blood requirements</p>
           </div>
         </div>
         {user?.role === 'Hospital' && (
@@ -112,37 +112,37 @@ const Requests = () => {
         )}
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+      <div className="bg-white dark:bg-card rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/50 text-gray-600 text-sm border-b border-gray-100">
-                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500">Req ID</th>
-                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500">Hospital</th>
-                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500">Blood Req</th>
-                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500">Urgency</th>
-                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500">Status</th>
-                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 text-right">Date</th>
+              <tr className="bg-gray-50/50 text-gray-600 dark:text-muted-foreground text-sm border-b border-gray-100">
+                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 dark:text-muted-foreground">Req ID</th>
+                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 dark:text-muted-foreground">Hospital</th>
+                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 dark:text-muted-foreground">Blood Req</th>
+                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 dark:text-muted-foreground">Urgency</th>
+                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 dark:text-muted-foreground">Status</th>
+                <th className="p-4 font-bold uppercase tracking-wider text-xs text-gray-500 dark:text-muted-foreground text-right">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center p-8 text-gray-500 font-medium">Loading requests...</td>
+                  <td colSpan={6} className="text-center p-8 text-gray-500 dark:text-muted-foreground font-medium">Loading requests...</td>
                 </tr>
               ) : requests.map((req) => (
                 <tr 
                   key={req.id} 
-                  className="hover:bg-red-50/50 transition-colors cursor-pointer group"
+                  className="hover:bg-destructive/10/50 transition-colors cursor-pointer group"
                   onClick={() => setSelectedRequest(req)}
                 >
                   <td className="p-4">
-                    <span className="font-mono text-xs font-bold text-gray-900 bg-gray-100 px-2 py-1 rounded">
+                    <span className="font-mono text-xs font-bold text-gray-900 dark:text-foreground bg-gray-100 px-2 py-1 rounded">
                       {req.requestNumber || req.id.substring(0,8).toUpperCase()}
                     </span>
                   </td>
                   <td className="p-4">
-                    <div className="font-bold text-gray-900">{req.hospital?.user?.name || req.hospital?.name || 'Your Hospital'}</div>
+                    <div className="font-bold text-gray-900 dark:text-foreground">{req.hospital?.user?.name || req.hospital?.name || 'Your Hospital'}</div>
                   </td>
                   <td className="p-4">
                     <div className="flex items-center space-x-2">
@@ -172,14 +172,14 @@ const Requests = () => {
                       {req.status}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-right font-medium text-gray-500">
+                  <td className="p-4 text-sm text-right font-medium text-gray-500 dark:text-muted-foreground">
                     {new Date(req.requestedAt || req.createdAt).toLocaleDateString()}
                   </td>
                 </tr>
               ))}
               {!loading && requests.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center p-8 text-gray-500 font-medium">No requests found.</td>
+                  <td colSpan={6} className="text-center p-8 text-gray-500 dark:text-muted-foreground font-medium">No requests found.</td>
                 </tr>
               )}
             </tbody>
@@ -190,10 +190,10 @@ const Requests = () => {
       {/* Hospital Creation Modal */}
       {showRequestModal && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
+          <div className="bg-white dark:bg-card rounded-3xl shadow-2xl w-full max-w-md overflow-hidden">
             <div className="bg-gray-50 border-b border-gray-100 p-6 flex justify-between items-center">
-              <h3 className="text-xl font-black text-gray-900">Request Blood</h3>
-              <button onClick={() => setShowRequestModal(false)} className="text-gray-400 hover:text-gray-600 p-2 hover:bg-gray-200 rounded-full transition-colors">✕</button>
+              <h3 className="text-xl font-black text-gray-900 dark:text-foreground">Request Blood</h3>
+              <button onClick={() => setShowRequestModal(false)} className="text-gray-400 hover:text-gray-600 dark:text-muted-foreground p-2 hover:bg-gray-200 rounded-full transition-colors">✕</button>
             </div>
             <form onSubmit={handleRequestSubmit} className="p-6 space-y-5">
               <div className="grid grid-cols-2 gap-4">
@@ -272,11 +272,11 @@ const Requests = () => {
       {/* Request Details Modal (View & Approve/Reject) */}
       {selectedRequest && (
         <div className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
+          <div className="bg-white dark:bg-card rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden">
             <div className="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50">
               <div>
                 <div className="flex items-center space-x-3 mb-1">
-                  <span className="font-mono text-sm font-bold text-red-600 bg-red-100 px-2 py-0.5 rounded">
+                  <span className="font-mono text-sm font-bold text-destructive bg-red-100 px-2 py-0.5 rounded">
                     {selectedRequest.requestNumber || selectedRequest.id.substring(0,8).toUpperCase()}
                   </span>
                   <span className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${
@@ -289,39 +289,39 @@ const Requests = () => {
                     {selectedRequest.status}
                   </span>
                 </div>
-                <h3 className="text-xl font-black text-gray-900 mt-2">Request Details</h3>
+                <h3 className="text-xl font-black text-gray-900 dark:text-foreground mt-2">Request Details</h3>
               </div>
-              <button onClick={() => setSelectedRequest(null)} className="text-gray-400 hover:text-gray-600 p-2 bg-white rounded-full shadow-sm">✕</button>
+              <button onClick={() => setSelectedRequest(null)} className="text-gray-400 hover:text-gray-600 dark:text-muted-foreground p-2 bg-white dark:bg-card rounded-full shadow-sm">✕</button>
             </div>
             
             <div className="p-6 space-y-6">
               {/* Info Grid */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Hospital</p>
-                  <p className="font-bold text-gray-900">{selectedRequest.hospital?.user?.name || selectedRequest.hospital?.name || 'N/A'}</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-1">Hospital</p>
+                  <p className="font-bold text-gray-900 dark:text-foreground">{selectedRequest.hospital?.user?.name || selectedRequest.hospital?.name || 'N/A'}</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Urgency</p>
-                  <p className="font-bold text-gray-900">{selectedRequest.urgency}</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-1">Urgency</p>
+                  <p className="font-bold text-gray-900 dark:text-foreground">{selectedRequest.urgency}</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Blood Required</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-1">Blood Required</p>
                   <div className="flex items-center space-x-2">
-                    <span className="text-red-600 font-black">{selectedRequest.bloodGroup}</span>
+                    <span className="text-destructive font-black">{selectedRequest.bloodGroup}</span>
                     <span className="text-gray-400">•</span>
-                    <span className="font-bold text-gray-900">{selectedRequest.quantity} {selectedRequest.component}</span>
+                    <span className="font-bold text-gray-900 dark:text-foreground">{selectedRequest.quantity} {selectedRequest.component}</span>
                   </div>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Required By</p>
-                  <p className="font-bold text-gray-900">{new Date(selectedRequest.requiredDate).toLocaleDateString()}</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-1">Required By</p>
+                  <p className="font-bold text-gray-900 dark:text-foreground">{new Date(selectedRequest.requiredDate).toLocaleDateString()}</p>
                 </div>
               </div>
 
               {selectedRequest.patientDetails && (
                 <div>
-                  <p className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Patient Details / Notes</p>
+                  <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-2">Patient Details / Notes</p>
                   <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-sm text-gray-700">
                     {selectedRequest.patientDetails}
                   </div>
@@ -330,11 +330,11 @@ const Requests = () => {
 
               {/* Approval Info */}
               {selectedRequest.approvedBy && (
-                <div className="bg-green-50 border border-green-100 p-4 rounded-xl flex items-start">
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5 mr-3 shrink-0" />
+                <div className="bg-success/10 border border-green-100 p-4 rounded-xl flex items-start">
+                  <CheckCircle className="w-5 h-5 text-success mt-0.5 mr-3 shrink-0" />
                   <div>
                     <p className="text-sm font-bold text-green-800">Approved by {selectedRequest.approvedBy.name}</p>
-                    <p className="text-xs text-green-600 font-medium mt-1">
+                    <p className="text-xs text-success font-medium mt-1">
                       on {new Date(selectedRequest.approvedAt).toLocaleString()}
                     </p>
                   </div>
@@ -355,7 +355,7 @@ const Requests = () => {
                   <button 
                     onClick={() => handleProcessRequest(selectedRequest.id, 'REJECT')}
                     disabled={actionLoading}
-                    className="flex-1 bg-white border-2 border-red-100 text-red-600 hover:bg-red-50 py-3 rounded-xl font-bold flex items-center justify-center transition-colors shadow-sm disabled:opacity-70"
+                    className="flex-1 bg-white dark:bg-card border-2 border-red-100 text-destructive hover:bg-destructive/10 py-3 rounded-xl font-bold flex items-center justify-center transition-colors shadow-sm disabled:opacity-70"
                   >
                     <XCircle className="w-5 h-5 mr-2" />
                     Reject Request

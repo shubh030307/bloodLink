@@ -52,7 +52,7 @@ const Inventory = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground flex items-center gap-2">
           <Activity className="text-blood-600" /> Inventory Management
         </h2>
         <button 
@@ -97,17 +97,17 @@ const Inventory = () => {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="text-center p-4 text-gray-500">Loading inventory...</td>
+                  <td colSpan={6} className="text-center p-4 text-gray-500 dark:text-muted-foreground">Loading inventory...</td>
                 </tr>
               ) : filteredInventory.map((item) => (
                 <tr key={item.id} className="hover:bg-white/60 transition-colors">
-                  <td className="p-4 text-sm font-medium text-gray-900">{item.id.substring(0,8).toUpperCase()}</td>
+                  <td className="p-4 text-sm font-medium text-gray-900 dark:text-foreground">{item.id.substring(0,8).toUpperCase()}</td>
                   <td className="p-4 text-sm">
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blood-100 text-blood-700 font-bold text-xs">
                       {item.bloodGroup}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-gray-600">{item.quantity} ml</td>
+                  <td className="p-4 text-sm text-gray-600 dark:text-muted-foreground">{item.quantity} ml</td>
                   <td className="p-4 text-sm">
                     <span className={`px-3 py-1 rounded-full text-xs font-medium ${
                       item.status === 'Available' ? 'bg-green-100 text-green-700' :
@@ -117,7 +117,7 @@ const Inventory = () => {
                       {item.status}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-gray-500">{new Date(item.expiryDate).toLocaleDateString()}</td>
+                  <td className="p-4 text-sm text-gray-500 dark:text-muted-foreground">{new Date(item.expiryDate).toLocaleDateString()}</td>
                   <td className="p-4 text-sm text-right">
                     <button 
                       onClick={() => setSelectedUnit(item)}
@@ -130,7 +130,7 @@ const Inventory = () => {
               ))}
               {!loading && filteredInventory.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="text-center p-4 text-gray-500">No inventory found.</td>
+                  <td colSpan={6} className="text-center p-4 text-gray-500 dark:text-muted-foreground">No inventory found.</td>
                 </tr>
               )}
             </tbody>
@@ -141,10 +141,10 @@ const Inventory = () => {
       {/* Add Stock Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md p-6">
+          <div className="bg-white dark:bg-card rounded-xl shadow-xl w-full max-w-md p-6">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-lg font-bold text-gray-800">Add Blood Stock</h3>
-              <button onClick={() => setShowAddModal(false)} className="text-gray-500 hover:text-gray-700">
+              <h3 className="text-lg font-bold text-gray-800 dark:text-foreground">Add Blood Stock</h3>
+              <button onClick={() => setShowAddModal(false)} className="text-gray-500 dark:text-muted-foreground hover:text-gray-700">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -185,7 +185,7 @@ const Inventory = () => {
                 <button 
                   type="button" 
                   onClick={() => setShowAddModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors"
+                  className="px-4 py-2 text-gray-600 dark:text-muted-foreground hover:bg-gray-100 rounded-lg font-medium transition-colors"
                 >
                   Cancel
                 </button>

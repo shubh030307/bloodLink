@@ -69,7 +69,7 @@ const QrScanner = ({ onScanSuccess }: QrScannerProps) => {
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
-      <div className="w-full overflow-hidden rounded-xl border-2 border-blood-200 min-h-[250px] bg-white relative">
+      <div className="w-full overflow-hidden rounded-xl border-2 border-blood-200 min-h-[250px] bg-white dark:bg-card relative">
          {/* The div managed by Html5Qrcode MUST remain empty from React's perspective */}
          <div id="qr-reader" className="w-full h-full min-h-[250px]"></div>
          
@@ -82,7 +82,7 @@ const QrScanner = ({ onScanSuccess }: QrScannerProps) => {
       </div>
       
       {error && (
-        <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-xl flex items-start w-full border border-red-100 animate-in fade-in zoom-in-95 duration-200">
+        <div className="mt-4 p-3 bg-destructive/10 text-red-700 text-sm rounded-xl flex items-start w-full border border-red-100 animate-in fade-in zoom-in-95 duration-200">
            <AlertCircle className="w-5 h-5 mr-2 shrink-0" />
            <p>{error}</p>
         </div>

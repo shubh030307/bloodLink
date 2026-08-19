@@ -29,6 +29,18 @@ export default {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(142 70.6% 45.3%)",
+          foreground: "hsl(210 40% 98%)",
+        },
+        warning: {
+          DEFAULT: "hsl(38 92.1% 50.2%)",
+          foreground: "hsl(210 40% 98%)",
+        },
+        info: {
+          DEFAULT: "hsl(198 93.2% 59.6%)",
+          foreground: "hsl(210 40% 98%)",
+        },
         accent: {
           DEFAULT: "hsl(var(--accent))",
           foreground: "hsl(var(--accent-foreground))",

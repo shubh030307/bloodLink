@@ -35,7 +35,7 @@ const Donors = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground flex items-center gap-2">
           <Users className="text-blood-600" /> Donor Management
         </h2>
         <button className="glass-button px-4 py-2 flex items-center gap-2">
@@ -62,7 +62,7 @@ const Donors = () => {
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-gray-50/50 text-gray-500 text-sm border-b border-gray-100">
+              <tr className="bg-gray-50/50 text-gray-500 dark:text-muted-foreground text-sm border-b border-gray-100">
                 <th className="p-4 font-medium">Donor ID</th>
                 <th className="p-4 font-medium">Name</th>
                 <th className="p-4 font-medium">Blood Group</th>
@@ -74,21 +74,21 @@ const Donors = () => {
             <tbody className="divide-y divide-gray-100">
               {filteredDonors.map((donor) => (
                 <tr key={donor.id} className="hover:bg-white/40 transition-colors">
-                  <td className="p-4 text-sm font-medium text-gray-900">{donor.donorNumber}</td>
-                  <td className="p-4 text-sm text-gray-800 font-medium">{donor.user?.name}</td>
+                  <td className="p-4 text-sm font-medium text-gray-900 dark:text-foreground">{donor.donorNumber}</td>
+                  <td className="p-4 text-sm text-gray-800 dark:text-foreground font-medium">{donor.user?.name}</td>
                   <td className="p-4 text-sm">
                     <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blood-50 text-blood-700 font-bold text-xs">
                       {donor.bloodGroup}
                     </span>
                   </td>
-                  <td className="p-4 text-sm text-gray-500">N/A</td>
+                  <td className="p-4 text-sm text-gray-500 dark:text-muted-foreground">N/A</td>
                   <td className="p-4 text-sm">
                     <span className="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">
                       Eligible
                     </span>
                   </td>
                   <td className="p-4 text-sm text-right">
-                    <button className="text-blue-600 hover:text-blue-800 font-medium text-sm mr-3">View</button>
+                    <button className="text-info hover:text-blue-800 font-medium text-sm mr-3">View</button>
                     <button 
                       onClick={() => handleBookClick(donor.id)} 
                       className="text-blood-600 hover:text-blood-800 font-medium text-sm"

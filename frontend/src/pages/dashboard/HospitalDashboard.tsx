@@ -35,7 +35,7 @@ const HospitalDashboard = () => {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Hospital Dashboard</h2>
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground">Hospital Dashboard</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="glass-card p-6">
@@ -76,8 +76,8 @@ const HospitalDashboard = () => {
             {requests.map((r: any) => (
               <li key={r.id} className="border p-3 rounded flex justify-between items-center">
                 <div>
-                  <div className="font-bold text-blood-600">{r.bloodGroup} <span className="text-gray-500 font-normal">x {r.quantity}</span></div>
-                  <div className="text-sm text-gray-500">{r.status} - {r.urgency}</div>
+                  <div className="font-bold text-blood-600">{r.bloodGroup} <span className="text-gray-500 dark:text-muted-foreground font-normal">x {r.quantity}</span></div>
+                  <div className="text-sm text-gray-500 dark:text-muted-foreground">{r.status} - {r.urgency}</div>
                 </div>
                 <div className="text-sm text-gray-400">{new Date(r.requestedAt).toLocaleDateString()}</div>
               </li>
