@@ -44,14 +44,8 @@ const MainLayout = () => {
           <>
             <NavItem to="/" icon={<Home />} label="Dashboard" active={location.pathname === '/'} />
             <NavItem to="/search" icon={<Search />} label="Find Blood" active={location.pathname === '/search'} />
-            <NavItem to="/donors" icon={<Users />} label="Donors" active={location.pathname === '/donors'} />
             <NavItem to="/inventory" icon={<Activity />} label="Inventory" active={location.pathname === '/inventory'} />
             <NavItem to="/requests" icon={<FileText />} label="Requests" active={location.pathname === '/requests'} />
-            <NavItem to="/appointments" icon={<Calendar />} label="Appointments" active={location.pathname === '/appointments'} />
-            <NavItem to="/collection" icon={<ClipboardList />} label="Collection" active={location.pathname === '/collection'} />
-            <NavItem to="/lab/dashboard" icon={<Microscope />} label="Laboratory" active={location.pathname === '/lab/dashboard' || location.pathname === '/lab/queue'} />
-            <NavItem to="/lab/history" icon={<FileText />} label="Lab History" active={location.pathname === '/lab/history'} />
-            <NavItem to="/lab/exceptions" icon={<HelpCircle />} label="Lab Exceptions" active={location.pathname === '/lab/exceptions'} />
             <NavItem to="/staff" icon={<Users />} label="Staff & Facilities" active={location.pathname === '/staff'} />
             <NavItem to="/reports" icon={<FileText />} label="Reports" active={location.pathname === '/reports'} />
             <NavItem to="/settings" icon={<Settings />} label="Settings" active={location.pathname === '/settings'} />
