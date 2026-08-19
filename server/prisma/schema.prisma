@@ -1,0 +1,634 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id    String @id @default(uuid())
+  name  String @unique // Admin, Receptionist, MedicalStaff, CollectionStaff, LabTechnician, Hospital, Donor
+  users User[]
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  roleId       String
+  role         Role     @relation(fields: [roleId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  donor    Donor?
+  hospital Hospital?
+
+  auditLogs             AuditLog[]
+  notifications         Notification[]
+  staffAppointments     Appointment[]          @relation("StaffAppointments")
+  staffVisits           Visit[]                @relation("StaffVisits")
+  staffDonations        Donation[]             @relation("StaffDonations")
+  staffTests            LabReport[]            @relation("StaffTests")
+  labSessions           LaboratorySession[]
+  testResults           LaboratoryTestResult[]
+  amendedReports        LabReportVersion[]
+  verifiedReports       LabReport[]            @relation("ReportVerifiers")
+  createdLabExceptions  LabException[]         @relation("ExceptionCreators")
+  resolvedLabExceptions LabException[]         @relation("ExceptionResolvers")
+
+  createdBatches     BloodBagLabelBatch[]  @relation("BatchCreator")
+  staffCollections   CollectionRecord[]    @relation("StaffCollections")
+  createdExceptions  CollectionException[] @relation("ExceptionCreator")
+  resolvedExceptions CollectionException[] @relation("ExceptionResolver")
+}
+
+model Donor {
+  id                 String    @id @default(uuid())
+  donorNumber        String    @unique // e.g., DNR-2026-000123
+  userId             String    @unique
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  age                Int
+  gender             String
+  bloodGroup         String
+  mobileNumber       String
+  address            String
+  medicalHistory     String?
+  lastDonationDate   DateTime?
+  verificationStatus String    @default("Unverified")
+
+  emergencyContact EmergencyContact?
+  appointments     Appointment[]
+  certificates     Certificate[]
+  milestones       Milestone[]
+}
+
+model EmergencyContact {
+  id           String @id @default(uuid())
+  donorId      String @unique
+  donor        Donor  @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  name         String
+  relationship String
+  mobileNumber String
+}
+
+model BloodBank {
+  id            String         @id @default(uuid())
+  name          String
+  address       String
+  capacity      Int            @default(50)
+  donationSlots DonationSlot[]
+  appointments  Appointment[]
+  inventory     BloodUnit[]
+  rooms         Room[]
+  counters      Counter[]
+
+  labelBatches      BloodBagLabelBatch[]
+  labels            BloodBagLabel[]
+  collectionRecords CollectionRecord[]
+  LaboratorySession LaboratorySession[]
+}
+
+model DonationSlot {
+  id           String        @id @default(uuid())
+  bloodBankId  String
+  bloodBank    BloodBank     @relation(fields: [bloodBankId], references: [id], onDelete: Cascade)
+  date         DateTime
+  timeSlot     String
+  capacity     Int           @default(5)
+  appointments Appointment[]
+}
+
+model Appointment {
+  id                String       @id @default(uuid())
+  appointmentNumber String       @unique // e.g., APT-2026-000321
+  donorId           String
+  donor             Donor        @relation(fields: [donorId], references: [id])
+  bloodBankId       String
+  bloodBank         BloodBank    @relation(fields: [bloodBankId], references: [id])
+  donationSlotId    String
+  donationSlot      DonationSlot @relation(fields: [donationSlotId], references: [id])
+  date              DateTime
+  timeSlot          String
+  status            String       @default("BOOKED") // BOOKED, CHECKED_IN, CANCELLED, EXPIRED
+
+  qrToken     String?   @unique // e.g., APT-TOKEN-8F92XK
+  qrExpiresAt DateTime?
+
+  receptionistId String?
+  receptionist   User?   @relation("StaffAppointments", fields: [receptionistId], references: [id])
+
+  visit Visit?
+}
+
+model Visit {
+  id            String      @id @default(uuid())
+  visitNumber   String      @unique // e.g., VIS-2026-000982
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+  visitQrToken  String      @unique // For visit tracking
+  status        String      @default("CHECKED_IN") // CHECKED_IN, WAITING_FOR_SCREENING, MEDICAL_SCREENING, MEDICALLY_CLEARED, DEFERRED, WAITING_FOR_COLLECTION, COLLECTION, COMPLETED
+
+  identityVerified           Boolean @default(false)
+  medicalCertificateAttached Boolean @default(false)
+
+  medicalStaffId String?
+  medicalStaff   User?   @relation("StaffVisits", fields: [medicalStaffId], references: [id])
+  medicalRemarks String?
+
+  donation             Donation?
+  identityDocument     IdentityDocument?
+  medicalCertificate   MedicalCertificate?
+  medicalQuestionnaire MedicalQuestionnaire?
+  queue                Queue?
+
+  collectionRecord     CollectionRecord?
+  collectionExceptions CollectionException[]
+}
+
+model Donation {
+  id             String @id @default(uuid())
+  donationNumber String @unique // e.g., DON-2026-000124
+  visitId        String @unique
+  visit          Visit  @relation(fields: [visitId], references: [id])
+
+  collectionStaffId        String?
+  collectionStaff          User?     @relation("StaffDonations", fields: [collectionStaffId], references: [id])
+  collectionDate           DateTime  @default(now())
+  collectionStartTime      DateTime?
+  collectionCompletionTime DateTime?
+
+  stickerId String?        @unique
+  sticker   BloodBagLabel? @relation(fields: [stickerId], references: [id])
+
+  status String @default("COLLECTION_STARTED") // COLLECTION_STARTED, COLLECTION_COMPLETED, OTP_PENDING, OTP_VERIFIED
+
+  otpHash      String?
+  otpExpiresAt DateTime?
+
+  bloodUnit        BloodUnit?
+  collectionRecord CollectionRecord?
+  otpVerification  OtpVerification?
+}
+
+model BloodUnit {
+  id         String   @id @default(uuid())
+  unitNumber String   @unique // e.g., BU-2026-000124
+  donationId String   @unique
+  donation   Donation @relation(fields: [donationId], references: [id])
+
+  bloodBagLabelId String?        @unique
+  label           BloodBagLabel? @relation(fields: [bloodBagLabelId], references: [id])
+
+  bloodGroup         String
+  component          String    @default("Whole Blood")
+  collectionCenterId String
+  collectionCenter   BloodBank @relation(fields: [collectionCenterId], references: [id])
+
+  status String @default("TESTING") // TESTING, APPROVED, REJECTED, DISCARDED, AVAILABLE, RESERVED, ISSUED, EXPIRED
+
+  expiryDate DateTime?
+
+  labReport     LabReport?
+  transactions  InventoryTransaction[]
+  issue         BloodIssue?
+  labSessions   LaboratorySession[]
+  testResults   LaboratoryTestResult[]
+  labExceptions LabException[]
+}
+
+model LabReport {
+  id           String    @id @default(uuid())
+  reportNumber String    @unique
+  bloodUnitId  String    @unique
+  bloodUnit    BloodUnit @relation(fields: [bloodUnitId], references: [id])
+
+  labSessionId String?            @unique
+  labSession   LaboratorySession? @relation(fields: [labSessionId], references: [id])
+
+  technicianId String?
+  technician   User?   @relation("StaffTests", fields: [technicianId], references: [id])
+
+  testResults       Json // Legacy or fast access structured results
+  internalRemarks   String?
+  internalReason    String?
+  donorFacingReason String?
+
+  decision      String @default("PENDING") // PENDING, APPROVED, REJECTED
+  status        String @default("DRAFT") // DRAFT, FINALIZED, AMENDED
+  reportVersion Int    @default(1)
+
+  verifiedById String?
+  verifiedBy   User?     @relation("ReportVerifiers", fields: [verifiedById], references: [id])
+  verifiedAt   DateTime?
+
+  documentStoragePath String?
+
+  generatedAt DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  versions LabReportVersion[]
+}
+
+model LaboratorySession {
+  id          String    @id @default(uuid())
+  sessionId   String    @unique
+  bloodUnitId String
+  bloodUnit   BloodUnit @relation(fields: [bloodUnitId], references: [id])
+  stickerId   String
+
+  technicianId String
+  technician   User      @relation(fields: [technicianId], references: [id])
+  centerId     String
+  center       BloodBank @relation(fields: [centerId], references: [id])
+
+  status      String    @default("IN_PROGRESS") // NOT_STARTED, IN_PROGRESS, COMPLETED, CANCELLED
+  startedAt   DateTime  @default(now())
+  completedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  results    LaboratoryTestResult[]
+  labReport  LabReport?
+  exceptions LabException[]
+}
+
+model LaboratoryTest {
+  id                   String  @id @default(uuid())
+  testCode             String  @unique
+  testName             String
+  category             String
+  resultType           String // TEXT, NUMERIC, QUALITATIVE, ENUM, BOOLEAN
+  unit                 String?
+  referenceInformation String?
+  isRequired           Boolean @default(true)
+  isActive             Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  results LaboratoryTestResult[]
+}
+
+model LaboratoryTestResult {
+  id           String            @id @default(uuid())
+  labSessionId String
+  labSession   LaboratorySession @relation(fields: [labSessionId], references: [id], onDelete: Cascade)
+  bloodUnitId  String
+  bloodUnit    BloodUnit         @relation(fields: [bloodUnitId], references: [id], onDelete: Cascade)
+  testId       String
+  test         LaboratoryTest    @relation(fields: [testId], references: [id])
+
+  resultValue  String
+  resultStatus String // NORMAL, ABNORMAL, POSITIVE, NEGATIVE, INCONCLUSIVE
+  remarks      String?
+
+  performedById String
+  performedBy   User     @relation(fields: [performedById], references: [id])
+  performedAt   DateTime @default(now())
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model LabReportVersion {
+  id                 String    @id @default(uuid())
+  labReportId        String
+  labReport          LabReport @relation(fields: [labReportId], references: [id], onDelete: Cascade)
+  versionNumber      Int
+  testResults        Json
+  decision           String
+  internalRemarks    String?
+  amendedById        String
+  amendedBy          User      @relation(fields: [amendedById], references: [id])
+  amendedAt          DateTime  @default(now())
+  reasonForAmendment String
+}
+
+model LabException {
+  id           String             @id @default(uuid())
+  exceptionId  String             @unique
+  bloodUnitId  String?
+  bloodUnit    BloodUnit?         @relation(fields: [bloodUnitId], references: [id])
+  stickerId    String?
+  labSessionId String?
+  labSession   LaboratorySession? @relation(fields: [labSessionId], references: [id])
+
+  type        String // BARCODE_UNREADABLE, STICKER_MISMATCH, MISSING_SAMPLE, etc.
+  description String
+  status      String @default("OPEN") // OPEN, UNDER_REVIEW, RESOLVED, CANCELLED
+
+  createdById  String
+  createdBy    User      @relation("ExceptionCreators", fields: [createdById], references: [id])
+  resolvedById String?
+  resolvedBy   User?     @relation("ExceptionResolvers", fields: [resolvedById], references: [id])
+  resolvedAt   DateTime?
+  resolution   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model InventoryTransaction {
+  id          String    @id @default(uuid())
+  bloodUnitId String
+  bloodUnit   BloodUnit @relation(fields: [bloodUnitId], references: [id])
+  type        String // ADD, RESERVE, ISSUE, DISCARD, EXPIRE
+  timestamp   DateTime  @default(now())
+  remarks     String?
+}
+
+model Hospital {
+  id                 String         @id @default(uuid())
+  userId             String         @unique
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  registrationNumber String         @unique
+  name               String
+  contactDetails     String
+  address            String
+  authorizedPerson   String
+  status             String         @default("APPROVED") // PENDING, APPROVED, REJECTED
+  bloodRequests      BloodRequest[]
+}
+
+model BloodRequest {
+  id             String   @id @default(uuid())
+  requestNumber  String   @unique // e.g., BR-2026-000452
+  hospitalId     String
+  hospital       Hospital @relation(fields: [hospitalId], references: [id])
+  bloodGroup     String
+  component      String
+  quantity       Int
+  urgency        String // NORMAL, URGENT, EMERGENCY
+  patientDetails String
+  requiredDate   DateTime
+
+  status String @default("PENDING") // PENDING, APPROVED, RESERVED, ISSUED, COMPLETED, REJECTED, WAITLISTED
+
+  requestedAt DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  bloodIssues BloodIssue[]
+}
+
+model BloodIssue {
+  id          String       @id @default(uuid())
+  issueNumber String       @unique // e.g., ISS-2026-000112
+  requestId   String
+  request     BloodRequest @relation(fields: [requestId], references: [id])
+  bloodUnitId String       @unique
+  bloodUnit   BloodUnit    @relation(fields: [bloodUnitId], references: [id])
+  issuedAt    DateTime     @default(now())
+  issuedById  String?
+}
+
+model Certificate {
+  id                String   @id @default(uuid())
+  certificateNumber String   @unique
+  donorId           String
+  donor             Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  visitId           String // Linked to the specific visit/donation
+  certificateUrl    String?
+  issuedAt          DateTime @default(now())
+}
+
+model Milestone {
+  id         String   @id @default(uuid())
+  donorId    String
+  donor      Donor    @relation(fields: [donorId], references: [id], onDelete: Cascade)
+  level      Int
+  badgeName  String
+  achievedAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  message   String
+  type      String // Email, InApp
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  action     String
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  role       String?
+  entity     String
+  entityId   String
+  prevStatus String?
+  newStatus  String?
+  details    String?
+  createdAt  DateTime @default(now())
+}
+
+model SystemSettings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String // Store as JSON string or plain text
+  updatedAt DateTime @updatedAt
+}
+
+model IdentityDocument {
+  id            String   @id @default(uuid())
+  visitId       String   @unique
+  visit         Visit    @relation(fields: [visitId], references: [id])
+  documentType  String
+  fileUrl       String
+  extractedData Json?
+  status        String   @default("VERIFIED")
+  uploadedAt    DateTime @default(now())
+}
+
+model MedicalCertificate {
+  id                 String   @id @default(uuid())
+  visitId            String   @unique
+  visit              Visit    @relation(fields: [visitId], references: [id])
+  fileUrl            String
+  issueDate          DateTime
+  doctorName         String?
+  registrationNumber String?
+  hospital           String?
+  status             String   @default("VALID")
+  uploadedAt         DateTime @default(now())
+}
+
+model MedicalQuestionnaire {
+  id          String   @id @default(uuid())
+  visitId     String   @unique
+  visit       Visit    @relation(fields: [visitId], references: [id])
+  answers     Json
+  status      String   @default("COMPLETED")
+  submittedAt DateTime @default(now())
+}
+
+model Room {
+  id          String    @id @default(uuid())
+  roomNumber  String    @unique
+  bloodBankId String
+  bloodBank   BloodBank @relation(fields: [bloodBankId], references: [id])
+  capacity    Int       @default(1)
+  status      String    @default("AVAILABLE")
+  queues      Queue[]
+}
+
+model Counter {
+  id            String    @id @default(uuid())
+  counterNumber String    @unique
+  bloodBankId   String
+  bloodBank     BloodBank @relation(fields: [bloodBankId], references: [id])
+  status        String    @default("AVAILABLE")
+  queues        Queue[]
+}
+
+model Queue {
+  id          String   @id @default(uuid())
+  queueNumber String   @unique
+  visitId     String   @unique
+  visit       Visit    @relation(fields: [visitId], references: [id])
+  status      String   @default("WAITING") // WAITING, CALLED, IN_ROOM, COMPLETED, CANCELLED
+  priority    String   @default("NORMAL")
+  roomId      String?
+  room        Room?    @relation(fields: [roomId], references: [id])
+  counterId   String?
+  counter     Counter? @relation(fields: [counterId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model BloodBagLabelBatch {
+  id          String          @id @default(uuid())
+  batchNumber String          @unique
+  centerId    String
+  bloodBank   BloodBank       @relation(fields: [centerId], references: [id])
+  prefix      String
+  startNumber Int
+  endNumber   Int
+  quantity    Int
+  status      String          @default("ACTIVE") // ACTIVE, EXHAUSTED, CANCELLED
+  createdAt   DateTime        @default(now())
+  createdById String
+  creator     User            @relation(name: "BatchCreator", fields: [createdById], references: [id])
+  labels      BloodBagLabel[]
+}
+
+model BloodBagLabel {
+  id        String             @id @default(uuid())
+  stickerId String             @unique // e.g., STK-2026-000124
+  batchId   String
+  batch     BloodBagLabelBatch @relation(fields: [batchId], references: [id])
+  centerId  String
+  bloodBank BloodBank          @relation(fields: [centerId], references: [id])
+  status    String             @default("AVAILABLE") // AVAILABLE, ASSIGNED, USED, DAMAGED, VOID
+
+  assignedAt   DateTime?
+  assignedById String?
+  usedAt       DateTime?
+  voidedAt     DateTime?
+  voidReason   String?
+
+  donation  Donation?
+  bloodUnit BloodUnit?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CollectionRecord {
+  id                 String   @id @default(uuid())
+  collectionRecordId String   @unique // e.g., COL-2026-0001
+  donationId         String   @unique
+  donation           Donation @relation(fields: [donationId], references: [id])
+  visitId            String   @unique
+  visit              Visit    @relation(fields: [visitId], references: [id])
+
+  collectionStaffId String
+  collectionStaff   User      @relation(name: "StaffCollections", fields: [collectionStaffId], references: [id])
+  centerId          String
+  bloodBank         BloodBank @relation(fields: [centerId], references: [id])
+
+  startTime         DateTime
+  completionTime    DateTime?
+  collectionStatus  String    @default("IN_PROGRESS") // IN_PROGRESS, COMPLETED, INTERRUPTED, REJECTED
+  collectionDetails Json?
+  remarks           String?
+
+  // Additional Collection Requirements
+  actualDonorWeight    Float?
+  weightRecordedBy     String?
+  weightRecordedAt     DateTime?
+
+  actualVolumeCollected Float?
+  volumeRecordedBy      String?
+  volumeRecordedAt      DateTime?
+  volumeOverrideReason  String?
+
+  examinationResult   String? // NORMAL, ABNORMAL
+  examinationReason   String?
+  examinationRemarks  String?
+
+  physicalForm PhysicalCollectionForm?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model PhysicalCollectionForm {
+  id                 String           @id @default(uuid())
+  documentUrl        String
+  uploadedAt         DateTime         @default(now())
+  collectionRecordId String           @unique
+  collectionRecord   CollectionRecord @relation(fields: [collectionRecordId], references: [id])
+  donorId            String
+  visitId            String
+  donationId         String
+  uploadedById       String
+  centerId           String
+  isOriginal         Boolean          @default(true)
+  version            Int              @default(1)
+}
+
+model CollectionException {
+  id          String  @id @default(uuid())
+  exceptionId String  @unique // e.g., EXC-2026-0001
+  visitId     String
+  visit       Visit   @relation(fields: [visitId], references: [id])
+  donationId  String?
+  bloodUnitId String?
+  stickerId   String?
+
+  type        String // QR_MISMATCH, MEDICAL_CLEARANCE_MISSING, DAMAGED_STICKER, etc.
+  description String
+  status      String @default("OPEN") // OPEN, UNDER_REVIEW, RESOLVED, CANCELLED
+
+  createdById  String
+  creator      User      @relation(name: "ExceptionCreator", fields: [createdById], references: [id])
+  resolvedById String?
+  resolvedBy   User?     @relation(name: "ExceptionResolver", fields: [resolvedById], references: [id])
+  resolvedAt   DateTime?
+  resolution   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model OtpVerification {
+  id         String    @id @default(uuid())
+  donationId String    @unique
+  donation   Donation  @relation(fields: [donationId], references: [id])
+  otpHash    String
+  status     String    @default("OTP_PENDING") // OTP_PENDING, OTP_VERIFIED, OTP_FAILED, OTP_EXPIRED
+  attempts   Int       @default(0)
+  expiresAt  DateTime
+  verifiedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
