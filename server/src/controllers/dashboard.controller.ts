@@ -33,13 +33,52 @@ export const getAdminStats = async (req: Request, res: Response): Promise<void> 
       where: { urgency: 'EMERGENCY', status: 'PENDING' }
     });
 
+    // Calculate last 6 months analytics
+    const chartData = [];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      const startOfMonth = new Date(d.getFullYear(), d.getMonth(), 1);
+      const endOfMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999);
+      
+      const donations = await prisma.donation.count({
+        where: { collectionDate: { gte: startOfMonth, lte: endOfMonth } }
+      });
+      
+      const requests = await prisma.bloodRequest.count({
+        where: { requestedAt: { gte: startOfMonth, lte: endOfMonth } }
+      });
+      
+      chartData.push({
+        name: monthNames[d.getMonth()],
+        donations,
+        requests
+      });
+    }
+
+    // Available blood groups
+    const inventoryGroups = await prisma.bloodUnit.groupBy({
+      by: ['bloodGroup'],
+      where: { status: 'AVAILABLE' },
+      _count: { bloodGroup: true }
+    });
+
+    const inventoryByGroup = inventoryGroups.map(g => ({
+      name: g.bloodGroup,
+      value: g._count.bloodGroup
+    }));
+
     res.json({
       totalDonors,
       todaysAppointments,
       todaysCheckins,
       availableUnits,
       pendingRequests,
-      emergencyRequests
+      emergencyRequests,
+      chartData,
+      inventoryByGroup
     });
   } catch (error) {
     console.error("ADMIN DASHBOARD ERROR:", error);

@@ -8,7 +8,8 @@ export const getInventory = async (req: Request, res: Response): Promise<void> =
         status: { in: ['AVAILABLE', 'RESERVED'] }
       },
       include: {
-        collectionCenter: true
+        collectionCenter: true,
+        labReport: true
       },
       orderBy: { expiryDate: 'asc' }
     });

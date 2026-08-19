@@ -8,17 +8,23 @@ const DonorDashboard = () => {
   const { user } = useAuth();
   const [eligibility, setEligibility] = useState<any>(null);
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [milestones, setMilestones] = useState<any>(null);
+  const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [eligibilityRes, apptRes] = await Promise.all([
+        const [eligibilityRes, apptRes, milestonesRes, notificationsRes] = await Promise.all([
           api.get('/donors/eligibility'),
-          api.get('/appointments/my')
+          api.get('/appointments/my'),
+          api.get('/donors/me/milestones'),
+          api.get('/notifications')
         ]);
         setEligibility(eligibilityRes.data);
         setAppointments(apptRes.data);
+        setMilestones(milestonesRes.data);
+        setNotifications(notificationsRes.data || []);
       } catch (error) {
         console.error("Error fetching donor dashboard data", error);
       } finally {
@@ -131,19 +137,17 @@ const DonorDashboard = () => {
               <Award className="w-6 h-6 text-yellow-500 mr-3 mt-0.5" />
               <div>
                 <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-tight">Life Saver Milestone</h3>
-                <p className="text-sm text-gray-500 dark:text-slate-400">Level 1 Milestone</p>
+                <p className="text-sm text-gray-500 dark:text-slate-400">Level {milestones?.currentLevel || 1} Milestone</p>
               </div>
             </div>
 
             <div className="flex justify-center mb-6">
-              {/* Fake Donut Chart */}
               <div className="relative w-32 h-32 rounded-full border-[12px] border-gray-100 dark:border-slate-700 flex items-center justify-center">
-                {/* SVG for yellow progress arc */}
                 <svg className="absolute inset-0 w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="44" fill="none" stroke="#eacb45" strokeWidth="12" strokeDasharray="276" strokeDashoffset="165" strokeLinecap="round" />
+                  <circle cx="50" cy="50" r="44" fill="none" stroke="#eacb45" strokeWidth="12" strokeDasharray="276" strokeDashoffset={276 - (276 * ((milestones?.donationsInCurrentLevel || 0) / 5))} strokeLinecap="round" style={{ transition: 'stroke-dashoffset 1s ease-in-out' }} />
                 </svg>
                 <div className="text-center">
-                  <p className="text-2xl font-black text-gray-900 dark:text-white">2/5</p>
+                  <p className="text-2xl font-black text-gray-900 dark:text-white">{milestones?.donationsInCurrentLevel || 0}/5</p>
                   <p className="text-[10px] text-gray-500 dark:text-slate-400 uppercase tracking-widest font-bold">Donations</p>
                 </div>
               </div>
@@ -151,7 +155,7 @@ const DonorDashboard = () => {
           </div>
 
           <div className="text-center">
-            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-3">2 more donations to reach Level 2</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400 font-medium mb-3">{milestones?.donationsToNextLevel || 5} more donations to reach Level {(milestones?.currentLevel || 1) + 1}</p>
             <Link to="/donor/milestones" className="text-sm font-bold text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 flex items-center justify-center transition-colors">
               View Milestones <ChevronRight className="w-4 h-4 ml-1" />
             </Link>
@@ -279,38 +283,25 @@ const DonorDashboard = () => {
             </div>
 
             <div className="space-y-6">
-              <div className="flex items-start pb-6 border-b border-gray-50 dark:border-slate-700/50">
-                <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-slate-700 flex items-center justify-center text-blue-500 dark:text-blue-400 shrink-0 mr-4">
-                  <Calendar className="w-5 h-5" />
+              {notifications.length === 0 ? (
+                <div className="text-center py-6 text-sm text-gray-500 dark:text-slate-400">
+                  <Bell className="w-8 h-8 mx-auto text-gray-300 dark:text-slate-600 mb-2" />
+                  No recent notifications.
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Appointment Confirmed</h4>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-2 leading-relaxed">Your donation slot is confirmed for tomorrow at 10:00 AM.</p>
-                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">2 hours ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-start pb-6 border-b border-gray-50 dark:border-slate-700/50">
-                <div className="w-10 h-10 rounded-full bg-green-50 dark:bg-slate-700 flex items-center justify-center text-green-500 dark:text-green-400 shrink-0 mr-4">
-                  <Award className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Certificate Generated</h4>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-2 leading-relaxed">Your certificate for the last donation is ready to download.</p>
-                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">1 week ago</p>
-                </div>
-              </div>
-
-              <div className="flex items-start">
-                <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-slate-700 flex items-center justify-center text-red-500 dark:text-red-400 shrink-0 mr-4">
-                  <Heart className="w-5 h-5" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Thank You!</h4>
-                  <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-2 leading-relaxed">Your donation has made a difference. You are truly a life saver.</p>
-                  <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">2 weeks ago</p>
-                </div>
-              </div>
+              ) : (
+                notifications.slice(0, 3).map((notification: any) => (
+                  <div key={notification.id} className="flex items-start pb-6 border-b border-gray-50 dark:border-slate-700/50 last:border-0 last:pb-0">
+                    <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-slate-700 flex items-center justify-center text-blue-500 dark:text-blue-400 shrink-0 mr-4">
+                      {notification.type === 'InApp' ? <Bell className="w-5 h-5" /> : <Calendar className="w-5 h-5" />}
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-gray-900 dark:text-white">{notification.type || 'Notification'}</h4>
+                      <p className="text-xs text-gray-500 dark:text-slate-400 mt-1 mb-2 leading-relaxed">{notification.message}</p>
+                      <p className="text-[10px] font-bold text-gray-400 dark:text-slate-500 uppercase tracking-widest">{new Date(notification.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </div>
 

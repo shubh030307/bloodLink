@@ -13,16 +13,6 @@ import CollectionDashboard from '../collection/CollectionDashboard.tsx';
 import LabDashboard from '../lab/LabDashboard.tsx';
 import HospitalDashboard from './HospitalDashboard.tsx';
 
-const mockDonationsData = [
-  { name: 'Jan', donations: 40, requests: 24 },
-  { name: 'Feb', donations: 30, requests: 13 },
-  { name: 'Mar', donations: 20, requests: 98 },
-  { name: 'Apr', donations: 27, requests: 39 },
-  { name: 'May', donations: 18, requests: 48 },
-  { name: 'Jun', donations: 23, requests: 38 },
-  { name: 'Jul', donations: 34, requests: 43 },
-];
-
 const AdminDashboard = () => {
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -83,10 +73,10 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Chart */}
         <div className="glass-card p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Donations vs Requests (Mock)</h3>
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Donations vs Requests</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={mockDonationsData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <LineChart data={stats?.chartData || []} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis dataKey="name" stroke="#6b7280" axisLine={false} tickLine={false} />
                 <YAxis stroke="#6b7280" axisLine={false} tickLine={false} />
@@ -107,7 +97,7 @@ const AdminDashboard = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={[{name: "A+", value: 40}, {name: "O+", value: 20}]} // Mock for now
+                  data={stats?.inventoryByGroup || []}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}

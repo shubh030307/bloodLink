@@ -133,3 +133,38 @@ export const getDonorEligibility = async (req: Request, res: Response): Promise<
 export const submitFeedback = async (req: Request, res: Response): Promise<void> => {
   res.json({ success: true, message: 'Feedback received' });
 };
+
+export const getDonorMilestones = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { userId } = (req as any).user;
+    const donor = await prisma.donor.findUnique({ where: { userId } });
+    if (!donor) {
+      res.status(404).json({ error: 'Donor not found' });
+      return;
+    }
+
+    // Count how many donations are completed
+    const completedDonations = await prisma.donation.count({
+      where: {
+        visit: { appointment: { donorId: donor.id } },
+        status: { in: ['COLLECTION_COMPLETED', 'OTP_VERIFIED'] }
+      }
+    });
+
+    // Calculate level (every 5 donations = 1 level)
+    const level = Math.floor(completedDonations / 5) + 1;
+    const targetDonations = level * 5;
+    const donationsInCurrentLevel = completedDonations % 5;
+    const donationsToNextLevel = targetDonations - completedDonations;
+
+    res.json({
+      totalDonations: completedDonations,
+      currentLevel: level,
+      targetDonations,
+      donationsInCurrentLevel,
+      donationsToNextLevel
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch milestones' });
+  }
+};

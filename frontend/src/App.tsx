@@ -10,6 +10,8 @@ import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
 import Dashboard from './pages/dashboard/Dashboard';
 import ChangePassword from './pages/auth/ChangePassword';
+import Settings from './pages/settings/Settings';
+import Reports from './pages/reports/Reports';
 import StaffManagement from './pages/staff/StaffManagement';
 import Inventory from './pages/inventory/Inventory';
 import Donors from './pages/donors/Donors';
@@ -58,6 +60,8 @@ function App() {
                 <Route path="/collection" element={<CollectionDashboard />} />
                 <Route path="/staff" element={<StaffManagement />} />
                 <Route path="/change-password" element={<ChangePassword />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/reports" element={<Reports />} />
                 
                 {/* Donor Specific Routes */}
                 <Route path="/donor/book" element={<BookDonation />} />
