@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { 
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell
@@ -14,32 +14,34 @@ import LabDashboard from '../lab/LabDashboard.tsx';
 import HospitalDashboard from './HospitalDashboard.tsx';
 
 const AdminDashboard = () => {
-  const [stats, setStats] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await api.get('/dashboard/admin');
-        setStats(response.data);
-      } catch (error) {
-        console.error("Failed to fetch dashboard stats", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchStats();
-  }, []);
+  const { data: stats, isLoading: loading, isError } = useQuery({
+    queryKey: ['adminDashboardStats'],
+    queryFn: async () => {
+      const response = await api.get('/dashboard/admin');
+      return response.data;
+    }
+  });
 
   if (loading) {
-    return <div className="flex justify-center items-center h-64 text-gray-500 dark:text-muted-foreground">Loading dashboard...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blood-600"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="bg-red-50 text-red-600 p-4 rounded-md">
+        Failed to load dashboard statistics. Please try again later.
+      </div>
+    );
   }
 
   return (
     <div className="space-y-6">
       {/* Stats Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 md:grid-cols-4 gap-6">
         <StatCard 
           title="Total Blood Units" 
           value={stats?.availableUnits || 0} 
@@ -70,10 +72,10 @@ const AdminDashboard = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {/* Main Chart */}
         <div className="glass-card p-6 lg:col-span-2">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-foreground mb-4">Donations vs Requests (Mock)</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-foreground mb-4">Donations vs Requests</h3>
           <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={stats?.chartData || []} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>

@@ -275,7 +275,7 @@ const DonorDashboard = () => {
           {/* Quick Actions */}
           <div className="bg-white dark:bg-card rounded-[2rem] p-6 shadow-sm dark:shadow-none border border-gray-100 dark:border-border">
             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-6">Quick Actions</h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <Link to="/donor/book" className="flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-100 dark:border-border hover:shadow-md dark:hover:bg-accent/50 transition-all group cursor-pointer">
                 <div className="w-12 h-12 rounded-full bg-destructive/10 dark:bg-muted flex items-center justify-center mb-3 group-hover:bg-red-100 dark:group-hover:bg-slate-600 transition-colors">
                   <Calendar className="w-5 h-5 text-destructive dark:text-red-400" />

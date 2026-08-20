@@ -196,7 +196,7 @@ export default function LabUnitTesting() {
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
           {tests.map(test => (
             <div key={test.id} className="bg-white dark:bg-background border border-gray-200 dark:border-border rounded-xl p-6 shadow-sm">

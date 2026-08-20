@@ -201,7 +201,7 @@ const ReceptionDashboard = () => {
 
       {/* STEP 1: SCAN APPOINTMENT */}
       {step === 1 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="glass-card p-6 border-l-4 border-blood-500">
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-lg text-gray-800 dark:text-foreground">Scan QR Code</h3>
@@ -254,7 +254,7 @@ const ReceptionDashboard = () => {
             Identity Document Verification
           </h3>
           
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="space-y-4">
               <label className="block text-sm font-medium text-gray-700">Document Type</label>
               <select className="glass-input w-full p-3" value={idDocumentType} onChange={(e) => setIdDocumentType(e.target.value)}>
@@ -361,7 +361,7 @@ const ReceptionDashboard = () => {
              The uploaded certificate must be issued within the last 30 days to be valid.
           </p>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Upload Certificate</label>
@@ -559,7 +559,7 @@ const ReceptionDashboard = () => {
                 </div>
 
                 {/* TWO-COLUMN METADATA */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                    <div className="space-y-3">
                       <div className="flex border-b border-gray-200 pb-1">
                         <span className="w-32 text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider">Queue No:</span>
@@ -595,7 +595,7 @@ const ReceptionDashboard = () => {
                 <div className="bg-gray-50 print:bg-white dark:bg-card border border-gray-300 rounded-lg p-4 mb-6">
                    <h3 className="text-sm font-black text-gray-800 dark:text-foreground uppercase tracking-widest border-b border-gray-300 pb-2 mb-3">1. Donor Information</h3>
                    
-                   <div className="grid grid-cols-2 gap-x-8 gap-y-3">
+                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
                       <div className="flex flex-col border-b border-gray-200 pb-1">
                         <span className="text-[10px] font-bold text-gray-500 dark:text-muted-foreground uppercase">Full Name</span>
                         <span className="font-bold text-gray-900 dark:text-foreground text-lg uppercase">{assignedQueue.visit?.appointment?.donor?.user?.name || "-"}</span>
@@ -641,7 +641,7 @@ const ReceptionDashboard = () => {
                 {/* MEDICAL EXAMINATION (FOR DOCTOR/STAFF) */}
                 <div className="border border-gray-800 rounded-lg p-4 mb-6">
                    <h3 className="text-sm font-black text-gray-800 dark:text-foreground uppercase tracking-widest border-b border-gray-800 pb-2 mb-3">2. Medical Examination (For Staff Use Only)</h3>
-                   <div className="grid grid-cols-4 gap-4">
+                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                       <div className="border-b border-dashed border-gray-400 pb-1 flex flex-col">
                          <span className="text-xs text-gray-600 dark:text-muted-foreground mb-4">Weight (kg)</span>
                       </div>
@@ -675,7 +675,7 @@ const ReceptionDashboard = () => {
                 </div>
 
                 {/* SIGNATURES (PUSHED TO BOTTOM) */}
-                <div className="mt-auto pt-6 border-t-2 border-gray-800 grid grid-cols-3 gap-6">
+                <div className="mt-auto pt-6 border-t-2 border-gray-800 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                    <div className="flex flex-col items-center pt-12 border-t border-dashed border-gray-400">
                       <span className="text-xs font-bold uppercase text-gray-800 dark:text-foreground">Signature of Donor</span>
                       <span className="text-[10px] text-gray-500 dark:text-muted-foreground mt-1">Date: ___ / ___ / 20__</span>

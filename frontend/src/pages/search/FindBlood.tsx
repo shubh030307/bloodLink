@@ -73,7 +73,7 @@ const FindBlood = () => {
               <p>No available units found for {bloodGroup} at this time.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {results.map((unit) => (
                 <div key={unit.id} className="glass-card p-6 flex flex-col justify-between hover:-translate-y-1 transition-transform duration-300">
                   <div className="flex justify-between items-start mb-4">

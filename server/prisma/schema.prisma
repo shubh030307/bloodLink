@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
@@ -131,6 +132,10 @@ model Appointment {
   receptionist   User?   @relation("StaffAppointments", fields: [receptionistId], references: [id])
 
   visit Visit?
+
+  @@index([donorId, date, status])
+  @@index([bloodBankId, date, status])
+  @@index([campId, date, status])
 }
 
 model Visit {
@@ -155,6 +160,8 @@ model Visit {
 
   collectionRecord     CollectionRecord?
   collectionExceptions CollectionException[]
+
+  @@index([appointmentId, status])
 }
 
 model Donation {
@@ -206,6 +213,9 @@ model BloodUnit {
   labSessions   LaboratorySession[]
   testResults   LaboratoryTestResult[]
   labExceptions LabException[]
+
+  @@index([bloodGroup, status, expiryDate])
+  @@index([collectionCenterId, status])
 }
 
 model LabReport {
@@ -264,6 +274,8 @@ model LaboratorySession {
   results    LaboratoryTestResult[]
   labReport  LabReport?
   exceptions LabException[]
+
+  @@index([centerId, status])
 }
 
 model LaboratoryTest {
@@ -386,6 +398,9 @@ model BloodRequest {
   updatedAt   DateTime @updatedAt
 
   bloodIssues BloodIssue[]
+
+  @@index([hospitalId, status])
+  @@index([bloodGroup, component, status])
 }
 
 model BloodIssue {

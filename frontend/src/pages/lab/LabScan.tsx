@@ -180,7 +180,7 @@ export default function LabScan() {
                 <CheckCircle className="w-5 h-5" /> Traceability Verified
               </h3>
               
-              <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-sm">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm">
                 <div>
                   <p className="text-gray-500 dark:text-muted-foreground">Unit Number</p>
                   <p className="font-semibold text-gray-900 dark:text-foreground">{successData.unitNumber}</p>

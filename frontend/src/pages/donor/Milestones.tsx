@@ -159,7 +159,7 @@ const DonorMilestones = () => {
                     <h4 className="text-sm font-bold text-gray-900 dark:text-white uppercase tracking-wider mb-3 flex items-center">
                       <Gift className="w-4 h-4 mr-2 text-blood-500" /> Included Rewards
                     </h4>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                       {/* Physical Rewards */}
                       {milestone.rewards.filter((r: any) => r.rewardType === 'PHYSICAL').map((reward: any) => {
                         const claim = claims.find((c: any) => c.rewardId === reward.id);
@@ -240,7 +240,7 @@ const DonorMilestones = () => {
             <div className="p-6">
               <p className="text-gray-600 dark:text-slate-400 mb-6 font-medium">Please select your preferred size for the BloodLink Branded T-Shirt.</p>
               
-              <div className="grid grid-cols-3 gap-3 mb-8">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 mb-8">
                 {['XS', 'S', 'M', 'L', 'XL', 'XXL'].map(size => (
                   <button
                     key={size}

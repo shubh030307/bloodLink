@@ -81,7 +81,7 @@ const Camps = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {loading ? (
           <div className="col-span-full text-center py-10">Loading camps...</div>
         ) : camps.length === 0 ? (
@@ -157,7 +157,7 @@ const Camps = () => {
                 <label className="block text-sm font-medium mb-1">Date</label>
                 <input required type="date" min={new Date().toISOString().split('T')[0]} className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blood-500 outline-none" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Start Time</label>
                   <input required type="time" className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blood-500 outline-none" value={formData.startTime} onChange={e => setFormData({...formData, startTime: e.target.value})} />
@@ -167,7 +167,7 @@ const Camps = () => {
                   <input required type="time" className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blood-500 outline-none" value={formData.endTime} onChange={e => setFormData({...formData, endTime: e.target.value})} />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">Target Capacity</label>
                   <input required type="number" min="1" className="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blood-500 outline-none" value={formData.capacity} onChange={e => setFormData({...formData, capacity: parseInt(e.target.value)})} />

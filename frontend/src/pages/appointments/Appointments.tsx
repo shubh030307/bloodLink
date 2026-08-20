@@ -41,7 +41,7 @@ const Appointments = () => {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         <div className="glass-card p-4 flex items-center gap-4">
           <div className="p-3 bg-blue-100 text-info rounded-full">
             <CalendarIcon className="w-6 h-6" />

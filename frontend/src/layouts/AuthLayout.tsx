@@ -3,7 +3,7 @@ import { Heart } from 'lucide-react';
 
 const AuthLayout = () => {
   return (
-    <div className="min-h-screen flex w-full bg-white dark:bg-slate-900">
+    <div className="min-h-dvh flex w-full bg-white dark:bg-slate-900">
       
       {/* Left Side - Visual/Branding (Hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-slate-900 overflow-hidden items-center justify-center">

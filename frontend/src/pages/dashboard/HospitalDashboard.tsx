@@ -37,7 +37,7 @@ const HospitalDashboard = () => {
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground">Hospital Dashboard</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="glass-card p-6">
           <h3 className="font-semibold mb-4">Request Blood</h3>
           <form onSubmit={handleSubmit} className="space-y-4">

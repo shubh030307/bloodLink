@@ -108,7 +108,7 @@ const BookDonation = () => {
         <h2 className="text-2xl font-bold text-gray-800 dark:text-foreground">Book Donation Appointment</h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-8">
         {/* Left Column - Select Location */}
         <div className="space-y-4">
           <div className="relative">
@@ -188,7 +188,7 @@ const BookDonation = () => {
                   ) : slots.length === 0 ? (
                     <div className="text-sm text-gray-500 py-4">No slots available for this date.</div>
                   ) : (
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       {slots.map((slot) => {
                         const isFull = slot.availableCapacity <= 0;
                         const isSelected = selectedSlotId === slot.id;

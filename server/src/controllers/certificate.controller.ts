@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../app';
 import crypto from 'crypto';
 
 export const getMyCertificates = async (req: Request, res: Response): Promise<void> => {
@@ -56,14 +56,23 @@ export const generateCertificate = async (req: Request, res: Response): Promise<
     });
 
     if (!certificate) {
-      const certificateNumber = `CERT-DON-${new Date().getFullYear()}-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      const certificateNumber = `CERT-DON-${new Date().getFullYear()}-${crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase()}`;
       
+      const { generateStandardCertificatePdf } = await import('../utils/certificateGenerator');
+      const certificateUrl = await generateStandardCertificatePdf({
+        certificateNumber,
+        donorName: donor.user.name,
+        bloodGroup: donor.bloodGroup,
+        date: new Date()
+      });
+
       certificate = await prisma.certificate.create({
         data: {
           certificateNumber,
           donorId: donor.id,
           visitId: donation.visit.id,
-          type: 'DONATION'
+          type: 'DONATION',
+          certificateUrl
         },
         include: { donor: { include: { user: true } } }
       });
@@ -105,13 +114,24 @@ export const generateMilestoneCertificate = async (req: Request, res: Response):
     });
 
     if (!existing) {
-      const certNumber = `CERT-MIL-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      const certNumber = `CERT-MIL-${crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase()}`;
+      
+      const { generateMilestoneCertificatePdf } = await import('../utils/certificateGenerator');
+      const certificateUrl = await generateMilestoneCertificatePdf({
+        certificateNumber: certNumber,
+        donorName: donor.user.name,
+        milestoneName: achievement.milestone.name,
+        donationCount: achievement.donationCountAtUnlock,
+        date: new Date()
+      });
+
       existing = await prisma.certificate.create({
         data: {
           certificateNumber: certNumber,
           donorId: donor.id,
           milestoneId,
-          type: 'MILESTONE'
+          type: 'MILESTONE',
+          certificateUrl
         },
         include: { donor: { include: { user: true } } }
       });
@@ -123,6 +143,7 @@ export const generateMilestoneCertificate = async (req: Request, res: Response):
       donationCount: achievement.donationCountAtUnlock
     });
   } catch (error) {
+    console.error("MILESTONE CERTIFICATE ERROR:", error);
     res.status(500).json({ error: 'Failed to generate milestone certificate' });
   }
 };

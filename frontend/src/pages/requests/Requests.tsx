@@ -196,7 +196,7 @@ const Requests = () => {
               <button onClick={() => setShowRequestModal(false)} className="text-gray-400 hover:text-gray-600 dark:text-muted-foreground p-2 hover:bg-gray-200 rounded-full transition-colors">✕</button>
             </div>
             <form onSubmit={handleRequestSubmit} className="p-6 space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-bold text-gray-700 mb-1.5">Blood Group *</label>
                   <select 
@@ -296,7 +296,7 @@ const Requests = () => {
             
             <div className="p-6 space-y-6">
               {/* Info Grid */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
                   <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground uppercase tracking-wider mb-1">Hospital</p>
                   <p className="font-bold text-gray-900 dark:text-foreground">{selectedRequest.hospital?.user?.name || selectedRequest.hospital?.name || 'N/A'}</p>

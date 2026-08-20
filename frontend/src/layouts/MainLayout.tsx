@@ -1,20 +1,26 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, Users, Activity, Calendar, Settings, FileText, Search, Award, Clock, User, Moon, Sun, ClipboardList, Microscope, Bell, HelpCircle, Plus, MapPin } from 'lucide-react';
+import { LogOut, Home, Users, Activity, Calendar, Settings, FileText, Search, Award, Clock, User, Moon, Sun, ClipboardList, Microscope, Bell, HelpCircle, Plus, MapPin, Menu, X } from 'lucide-react';
 
 const MainLayout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
-  const [darkMode, setDarkMode] = React.useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (darkMode) {
       document.documentElement.classList.add('dark');
     } else {
       document.documentElement.classList.remove('dark');
     }
   }, [darkMode]);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -95,15 +101,38 @@ const MainLayout = () => {
   };
 
   return (
-    <div className="h-screen overflow-hidden flex bg-[#f8f9fc] dark:bg-background font-sans">
+    <div className="min-h-dvh h-dvh overflow-hidden flex bg-[#f8f9fc] dark:bg-background font-sans relative">
+      
+      {/* Mobile Sidebar Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Left Sidebar */}
-      <aside className="w-64 bg-white dark:bg-card m-4 rounded-[2rem] flex flex-col justify-between overflow-hidden shadow-sm dark:shadow-none border border-gray-100 dark:border-border print:hidden">
+      <aside className={`
+        fixed lg:static inset-y-0 left-0 z-50
+        w-72 lg:w-64 bg-white dark:bg-card 
+        lg:m-4 m-0 lg:rounded-[2rem] rounded-none
+        flex flex-col justify-between overflow-hidden 
+        shadow-2xl lg:shadow-sm dark:shadow-none 
+        border-r lg:border border-gray-100 dark:border-border print:hidden
+        transition-transform duration-300 ease-in-out
+        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
         <div className="p-6 overflow-y-auto custom-scrollbar">
-          <div className="flex items-center justify-center mb-8">
-            {/* Provide the dark mode logo if applicable */}
+          <div className="flex items-center justify-between lg:justify-center mb-8">
             <Link to="/">
-              <img src={darkMode ? "/dark-mode-2.png" : "/logo-chatgpt.png"} alt="bloodLink" className="h-14 w-auto object-contain rounded-md mix-blend-multiply dark:mix-blend-normal" />
+              <img src={darkMode ? "/dark-mode-2.png" : "/logo-chatgpt.png"} alt="bloodLink" className="h-10 lg:h-14 w-auto object-contain rounded-md mix-blend-multiply dark:mix-blend-normal" />
             </Link>
+            <button 
+              className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <X className="w-6 h-6" />
+            </button>
           </div>
 
           <nav className="space-y-1">
@@ -112,79 +141,75 @@ const MainLayout = () => {
         </div>
 
         <div className="p-4 bg-white dark:bg-card border-t border-gray-50 dark:border-border space-y-4">
-
-
-
           <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-muted rounded-2xl cursor-pointer hover:bg-gray-100 dark:hover:bg-accent transition-colors" onClick={logout}>
-            <div className="flex items-center space-x-3">
-              <div className="relative">
+            <div className="flex items-center space-x-3 truncate">
+              <div className="relative shrink-0">
                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-destructive font-bold overflow-hidden">
-                  {/* Using an avatar placeholder or initial */}
                   {user?.name?.[0] || 'S'}
                 </div>
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-success/100 border-2 border-white rounded-full"></div>
               </div>
-              <div>
-                <p className="text-sm font-bold text-gray-900 dark:text-foreground">{user?.name || 'Sarthak Singh'}</p>
-                <p className="text-xs text-gray-500 dark:text-muted-foreground">{user?.role || 'Collection Staff'}</p>
+              <div className="truncate">
+                <p className="text-sm font-bold text-gray-900 dark:text-foreground truncate">{user?.name || 'User'}</p>
+                <p className="text-xs text-gray-500 dark:text-muted-foreground truncate">{user?.role || 'Staff'}</p>
               </div>
             </div>
-            <div className="text-gray-400">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+            <div className="text-gray-400 shrink-0 ml-2">
+              <LogOut className="w-5 h-5" />
             </div>
           </div>
         </div>
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 p-4 overflow-auto flex flex-col print:p-0 print:overflow-visible">
-        <header className="flex justify-between items-center mb-8 px-4 mt-2 print:hidden">
-          {/* Top Left: Search Bar or Title */}
-          <div className="flex-1">
-            <div className="relative max-w-md">
+      <main className="flex-1 w-full overflow-hidden flex flex-col print:p-0 print:overflow-visible relative">
+        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 lg:p-6 mb-2 lg:mb-4 shrink-0 border-b lg:border-none border-gray-200 dark:border-border bg-white lg:bg-transparent dark:bg-card lg:dark:bg-transparent print:hidden gap-4">
+          
+          <div className="flex items-center w-full sm:w-auto gap-3">
+            <button 
+              className="lg:hidden p-2 text-gray-600 bg-gray-100 dark:bg-muted rounded-lg"
+              onClick={() => setIsMobileMenuOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            {/* Top Left: Search Bar or Title */}
+            <div className="relative flex-1 sm:max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search donors, ID, phone..."
-                className="w-full pl-10 pr-16 py-3 rounded-full bg-gray-50 dark:bg-card border border-gray-100 dark:border-border shadow-inner text-sm focus:ring-2 focus:ring-red-500 outline-none text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-slate-500"
+                placeholder="Search..."
+                className="w-full pl-10 pr-4 sm:pr-16 py-2.5 sm:py-3 rounded-full bg-gray-100 sm:bg-gray-50 dark:bg-muted sm:dark:bg-card border-none sm:border sm:border-gray-100 dark:border-border shadow-none sm:shadow-inner text-sm focus:ring-2 focus:ring-red-500 outline-none text-gray-900 dark:text-foreground placeholder-gray-500 dark:placeholder-slate-400"
               />
-              <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center">
+              <div className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 items-center">
                 <span className="text-xs font-bold text-gray-400 dark:text-muted-foreground bg-gray-50 dark:bg-muted px-2 py-1 rounded-md border border-gray-100 dark:border-border">Ctrl K</span>
               </div>
             </div>
           </div>
 
           {/* Top Right: Actions */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-end overflow-x-auto no-scrollbar pb-1 sm:pb-0">
             <button
               onClick={() => setDarkMode(!darkMode)}
-              className="p-3 bg-white dark:bg-card rounded-full shadow-sm border border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors"
+              className="p-2.5 sm:p-3 bg-gray-100 sm:bg-white dark:bg-muted sm:dark:bg-card rounded-full shadow-none sm:shadow-sm border-none sm:border sm:border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors shrink-0"
             >
               {darkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </button>
 
-            <button className="relative p-3 bg-white dark:bg-card rounded-full shadow-sm border border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors">
+            <button className="relative p-2.5 sm:p-3 bg-gray-100 sm:bg-white dark:bg-muted sm:dark:bg-card rounded-full shadow-none sm:shadow-sm border-none sm:border sm:border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors shrink-0">
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive/100 rounded-full ring-2 ring-white dark:ring-slate-800 animate-pulse"></span>
             </button>
 
-            <div className="flex items-center space-x-2 bg-white dark:bg-card px-4 py-2.5 rounded-full shadow-sm border border-gray-100 dark:border-border">
+            <div className="hidden md:flex items-center space-x-2 bg-white dark:bg-card px-4 py-2.5 rounded-full shadow-sm border border-gray-100 dark:border-border shrink-0">
               <Calendar className="w-5 h-5 text-gray-400 dark:text-muted-foreground" />
-              <span className="text-sm font-bold text-gray-700 dark:text-muted-foreground">
-                {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+              <span className="text-sm font-bold text-gray-700 dark:text-muted-foreground whitespace-nowrap">
+                {new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
               </span>
             </div>
-
-            <button
-              onClick={logout}
-              className="p-3 bg-white dark:bg-card rounded-full shadow-sm border border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors"
-            >
-              <LogOut className="w-5 h-5" />
-            </button>
           </div>
         </header>
 
-        <div className="flex-1 px-4">
+        <div className="flex-1 px-4 lg:px-6 overflow-y-auto overflow-x-hidden custom-scrollbar pb-20 lg:pb-6">
           <Outlet />
         </div>
       </main>
@@ -194,9 +219,9 @@ const MainLayout = () => {
 
 const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.ReactNode, label: string, active?: boolean }) => {
   return (
-    <Link to={to} className={`flex items-center space-x-3 px-4 py-3.5 rounded-2xl transition-all duration-300 mb-1 border-l-4 ${active ? 'bg-red-600 text-white font-bold shadow-md shadow-red-500/20 border-red-800' : 'border-transparent text-gray-500 dark:text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-accent dark:hover:text-red-400 font-medium'}`}>
-      {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-5 h-5' })}
-      <span>{label}</span>
+    <Link to={to} className={`flex items-center space-x-3 px-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all duration-300 mb-1 border-l-4 ${active ? 'bg-red-600 text-white font-bold shadow-md shadow-red-500/20 border-red-800' : 'border-transparent text-gray-600 dark:text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-accent dark:hover:text-red-400 font-medium'}`}>
+      {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-5 h-5 shrink-0' })}
+      <span className="truncate">{label}</span>
     </Link>
   );
 };

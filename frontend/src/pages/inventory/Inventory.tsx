@@ -220,7 +220,7 @@ const Inventory = () => {
             
             <div className="p-6 space-y-8">
               {/* Basic Details Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-gray-50 dark:bg-slate-900/50 p-4 rounded-xl border border-gray-100 dark:border-slate-700">
                   <p className="text-xs text-gray-500 dark:text-slate-400 font-bold uppercase tracking-wider mb-1">Unit ID</p>
                   <p className="font-semibold text-gray-900 dark:text-white">{selectedUnit.id.substring(0,8).toUpperCase()}</p>
@@ -248,7 +248,7 @@ const Inventory = () => {
                 
                 {selectedUnit.labReport ? (
                   <div className="bg-indigo-50/50 dark:bg-indigo-900/10 rounded-xl border border-indigo-100 dark:border-indigo-900/30 overflow-hidden">
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4 p-5 bg-indigo-50 dark:bg-indigo-900/20 border-b border-indigo-100 dark:border-indigo-900/30">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 p-5 bg-indigo-50 dark:bg-indigo-900/20 border-b border-indigo-100 dark:border-indigo-900/30">
                       <div>
                         <p className="text-xs text-indigo-600/70 dark:text-indigo-400/70 font-bold uppercase tracking-wider mb-1">Report No.</p>
                         <p className="font-bold text-indigo-900 dark:text-indigo-300">{selectedUnit.labReport.reportNumber || 'N/A'}</p>

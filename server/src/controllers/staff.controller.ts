@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
-import bcrypt from 'bcrypt';
+import { prisma } from '../app';
+import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 
 export const getAllStaff = async (req: Request, res: Response) => {
@@ -49,7 +49,7 @@ export const createStaff = async (req: Request, res: Response) => {
     }
 
     // Generate a temporary 8-character password
-    const tempPassword = crypto.randomBytes(4).toString('hex');
+    const tempPassword = crypto.randomUUID().replace(/-/g, '').substring(0, 8);
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
     const result = await prisma.$transaction(async (tx) => {
@@ -82,7 +82,7 @@ export const createStaff = async (req: Request, res: Response) => {
         await tx.staffProfile.create({
           data: {
             userId: user.id,
-            employeeId: employeeId || `EMP-${crypto.randomBytes(2).toString('hex').toUpperCase()}`,
+            employeeId: employeeId || `EMP-${crypto.randomUUID().replace(/-/g, '').substring(0, 4).toUpperCase()}`,
             branch,
             contactNumber,
             address,

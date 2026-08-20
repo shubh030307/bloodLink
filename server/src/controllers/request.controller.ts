@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../app';
 
 export const submitRequest = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -149,7 +149,7 @@ export const processRequest = async (req: Request, res: Response): Promise<void>
         }
 
         return updatedReq;
-      });
+      }, { isolationLevel: 'Serializable' });
 
       res.json({ message: 'Blood units reserved successfully', request: result });
       return;
@@ -197,7 +197,7 @@ export const issueBlood = async (req: Request, res: Response): Promise<void> => 
     const issueCount = await prisma.bloodIssue.count();
     let counter = issueCount + 1;
 
-    const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async (tx) => {
       const updatedReq = await tx.bloodRequest.update({
         where: { id: requestId },
         data: { status: 'COMPLETED' }
@@ -242,7 +242,7 @@ export const issueBlood = async (req: Request, res: Response): Promise<void> => 
       });
 
       return updatedReq;
-    });
+    }, { isolationLevel: 'Serializable' });
 
     res.json({ message: 'Blood units issued successfully', request: result });
   } catch (error) {

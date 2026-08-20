@@ -47,7 +47,7 @@ const Settings = () => {
         <p className="text-gray-500 dark:text-slate-400 mt-1">Manage your account preferences and application settings.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
         
         {/* Navigation Sidebar for Settings */}
         <div className="md:col-span-1 space-y-2">
@@ -90,7 +90,7 @@ const Settings = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wider mb-2">Email Address</label>
                     <input type="email" disabled value={user?.email || ''} className="w-full bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 rounded-xl px-4 py-2.5 text-gray-700 dark:text-slate-300 opacity-70 cursor-not-allowed" />

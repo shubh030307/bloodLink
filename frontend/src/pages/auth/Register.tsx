@@ -151,7 +151,7 @@ const Register = () => {
         {/* Donor Specific Fields */}
         {roleName === 'Donor' && (
           <>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
                 <input type="date" required value={dob} onChange={(e) => setDob(e.target.value)}
@@ -173,7 +173,7 @@ const Register = () => {
                 </select>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                 <select required value={gender} onChange={(e) => setGender(e.target.value)}
@@ -198,7 +198,7 @@ const Register = () => {
             
             <div className="pt-2 border-t border-gray-100">
               <h3 className="text-sm font-bold text-gray-800 dark:text-foreground mb-3">Emergency Contact</h3>
-              <div className="grid grid-cols-2 gap-4 mb-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-3">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
                   <input type="text" required value={emergencyName} onChange={(e) => setEmergencyName(e.target.value)}

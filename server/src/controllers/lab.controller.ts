@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../app';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { generateLabReportPdf } from '../utils/pdfGenerator';
 

@@ -143,7 +143,7 @@ export default function LabReportReview() {
           </div>
 
           {/* Metadata Section */}
-          <div className="grid grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
             <div className="bg-gray-50 dark:bg-card/50 p-4 rounded-lg border border-gray-100 dark:border-border">
               <h3 className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3 border-b border-gray-200 dark:border-border pb-2">Unit Details</h3>
               <div className="space-y-2 text-sm">
@@ -172,42 +172,44 @@ export default function LabReportReview() {
               Laboratory Analysis Findings
             </h3>
             
-            <table className="w-full text-left text-sm border-collapse">
-              <thead>
-                <tr className="border-b-2 border-gray-900 dark:border-gray-100 text-gray-900 dark:text-foreground">
-                  <th className="pb-3 font-bold uppercase tracking-wider">Test Parameter</th>
-                  <th className="pb-3 font-bold uppercase tracking-wider">Observed Value</th>
-                  <th className="pb-3 font-bold uppercase tracking-wider">Result / Flag</th>
-                  <th className="pb-3 font-bold uppercase tracking-wider">Clinical Remarks</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                {results?.map((res, idx) => (
-                  <tr key={idx} className="group hover:bg-gray-50 dark:hover:bg-accent/50 transition-colors">
-                    <td className="py-4 font-semibold text-gray-900 dark:text-foreground">{res.test?.testName || res.testId}</td>
-                    <td className="py-4 font-mono text-gray-600 dark:text-muted-foreground">{res.resultValue}</td>
-                    <td className="py-4">
-                      {res.resultStatus === 'NORMAL' || res.resultStatus === 'NEGATIVE' ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-success/10 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50">
-                          <CheckCircle className="w-3 h-3" /> {res.resultStatus}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-destructive/10 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50">
-                          <AlertTriangle className="w-3 h-3" /> {res.resultStatus}
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-4 text-gray-500 dark:text-muted-foreground text-xs max-w-[200px] truncate" title={res.remarks || ''}>
-                      {res.remarks || '--'}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-sm border-collapse">
+                <thead>
+                  <tr className="border-b-2 border-gray-900 dark:border-gray-100 text-gray-900 dark:text-foreground">
+                    <th className="pb-3 font-bold uppercase tracking-wider">Test Parameter</th>
+                    <th className="pb-3 font-bold uppercase tracking-wider">Observed Value</th>
+                    <th className="pb-3 font-bold uppercase tracking-wider">Result / Flag</th>
+                    <th className="pb-3 font-bold uppercase tracking-wider">Clinical Remarks</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  {results?.map((res, idx) => (
+                    <tr key={idx} className="group hover:bg-gray-50 dark:hover:bg-accent/50 transition-colors">
+                      <td className="py-4 font-semibold text-gray-900 dark:text-foreground">{res.test?.testName || res.testId}</td>
+                      <td className="py-4 font-mono text-gray-600 dark:text-muted-foreground">{res.resultValue}</td>
+                      <td className="py-4">
+                        {res.resultStatus === 'NORMAL' || res.resultStatus === 'NEGATIVE' ? (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-success/10 text-green-700 border border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800/50">
+                            <CheckCircle className="w-3 h-3" /> {res.resultStatus}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold bg-destructive/10 text-red-700 border border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800/50">
+                            <AlertTriangle className="w-3 h-3" /> {res.resultStatus}
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-4 text-gray-500 dark:text-muted-foreground text-xs max-w-[200px] truncate" title={res.remarks || ''}>
+                        {res.remarks || '--'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
 
           {/* Signatures & Footer */}
-          <div className="pt-12 pb-4 mt-8 border-t-2 border-gray-100 dark:border-border grid grid-cols-3 gap-8">
+          <div className="pt-12 pb-4 mt-8 border-t-2 border-gray-100 dark:border-border grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="h-12 flex items-end justify-center">
                 <span className="font-mono text-gray-400 italic">Auto-Analyzer Integration</span>

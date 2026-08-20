@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../app';
 import crypto from 'crypto';
-import { differenceInDays, parse, isValid } from 'date-fns';
+import { isMedicalCertificateValid } from '../utils/businessRules';
+import { generateQrToken, generateIdentifier } from '../utils/securityUtils';
 
 // 1. Scan QR Code
 export const scanAppointmentQr = async (req: Request, res: Response): Promise<void> => {
@@ -81,6 +82,15 @@ export const uploadIdentityDocument = async (req: Request, res: Response): Promi
       return;
     }
 
+    // Upload to Supabase Storage
+    const uniqueSuffix = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+    const ext = file.originalname.split('.').pop();
+    const filePath = `${appointmentId}-${uniqueSuffix}.${ext}`;
+    
+    // Lazy load the supabase client to avoid top-level require issues
+    const { uploadBufferToSupabase } = await import('../utils/supabaseClient');
+    const publicUrl = await uploadBufferToSupabase('uploads', `identity/${filePath}`, file.buffer, file.mimetype);
+
     // SIMULATED OCR: We return mock structured data based on the donor's actual info to simulate a successful OCR without strictly blocking uploads.
     const mockOcrData = {
       name: appointment.donor.user.name,
@@ -91,7 +101,7 @@ export const uploadIdentityDocument = async (req: Request, res: Response): Promi
 
     // We don't save the Visit yet. We just return the temp file URL and extracted data.
     res.json({
-      fileUrl: `/uploads/${file.filename}`,
+      fileUrl: publicUrl,
       extractedData: mockOcrData,
       message: 'ID document verified successfully'
     });
@@ -112,24 +122,24 @@ export const uploadMedicalCertificate = async (req: Request, res: Response): Pro
       return;
     }
 
-    if (!issueDate || !isValid(new Date(issueDate))) {
-       res.status(400).json({ error: 'Valid issue date is required' });
-       return;
+    const validation = isMedicalCertificateValid(issueDate, 30);
+    if (!validation.valid) {
+      res.status(400).json({ error: validation.reason });
+      return;
     }
 
-    const certDate = new Date(issueDate);
-    const now = new Date();
+    // Upload to Supabase Storage
+    const uniqueSuffix = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+    const ext = file.originalname.split('.').pop();
+    const filePath = `${appointmentId}-${uniqueSuffix}.${ext}`;
     
-    // Check 30 day rule
-    const daysOld = differenceInDays(now, certDate);
-    if (daysOld > 30) {
-       res.status(400).json({ error: `Medical Certificate Expired. Certificate is ${daysOld} days old (Maximum allowed: 30 days).` });
-       return;
-    }
+    // Lazy load the supabase client to avoid top-level require issues
+    const { uploadBufferToSupabase } = await import('../utils/supabaseClient');
+    const publicUrl = await uploadBufferToSupabase('uploads', `certificates/${filePath}`, file.buffer, file.mimetype);
 
     res.json({
-      fileUrl: `/uploads/${file.filename}`,
-      issueDate: certDate,
+      fileUrl: publicUrl,
+      issueDate: new Date(issueDate),
       message: 'Medical certificate validated successfully'
     });
   } catch (error) {
@@ -173,8 +183,8 @@ export const assignQueue = async (req: Request, res: Response): Promise<void> =>
 
       // Generate Visit Number
       const visitCount = await tx.visit.count();
-      const visitNumber = `VIS-${new Date().getFullYear()}-${String(visitCount + 1).padStart(6, '0')}`;
-      const visitQrToken = `VIS-TOKEN-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
+      const visitNumber = generateIdentifier('VIS', visitCount);
+      const visitQrToken = generateQrToken('VIS-TOKEN', 6);
 
       // Create Visit
       const visit = await tx.visit.create({
@@ -273,7 +283,7 @@ export const assignQueue = async (req: Request, res: Response): Promise<void> =>
       });
 
       return queue;
-    });
+    }, { isolationLevel: 'Serializable' });
 
     res.json(result);
   } catch (error: any) {

@@ -234,7 +234,7 @@ const RegisterStaffModal = ({ onClose, onSuccess }: { onClose: () => void, onSuc
         <form onSubmit={handleSubmit} className="p-6">
           {error && <div className="mb-6 p-4 bg-destructive/10 text-destructive rounded-xl text-sm font-medium border border-red-100">{error}</div>}
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-5">
             <div className="col-span-2">
               <label className="block text-sm font-bold text-gray-700 mb-1.5">Role Type *</label>
               <select 

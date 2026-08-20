@@ -285,7 +285,7 @@ export default function CollectionDashboard() {
               {step === 2 && visit && (
                 <div className="w-full">
                   <h2 className="text-2xl font-bold dark:text-foreground mb-6 flex items-center"><Shield className="w-6 h-6 mr-2 text-destructive" /> Verify Identity</h2>
-                  <div className="grid grid-cols-2 gap-6 bg-slate-50 dark:bg-background/50 p-6 rounded-2xl mb-8">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 dark:bg-background/50 p-6 rounded-2xl mb-8">
                     <div><p className="text-sm text-gray-500 dark:text-muted-foreground">Donor Name</p><p className="font-bold text-lg dark:text-foreground">{visit.donorName}</p></div>
                     <div><p className="text-sm text-gray-500 dark:text-muted-foreground">Donor ID</p><p className="font-mono font-medium dark:text-muted-foreground">{visit.donorId}</p></div>
                     <div><p className="text-sm text-gray-500 dark:text-muted-foreground">Blood Group</p><p className="font-black text-destructive dark:text-red-400 text-2xl">{visit.bloodGroup}</p></div>
@@ -415,7 +415,7 @@ export default function CollectionDashboard() {
           {/* Today's Overview */}
           <div className="print:hidden">
             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-4">Today's Collection Overview</h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="bg-white dark:bg-card p-5 rounded-[1.5rem] border border-gray-100 dark:border-border flex flex-col justify-center items-center">
                 <div className="flex items-center space-x-2 text-destructive mb-2"><Users className="w-5 h-5" /><span className="font-black text-xl">12</span></div>
                 <p className="text-xs font-bold text-gray-500 dark:text-muted-foreground">Total Scheduled</p>
@@ -438,7 +438,7 @@ export default function CollectionDashboard() {
           {/* Quick Actions */}
           <div className="print:hidden">
             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
               <div className="bg-white dark:bg-card p-4 rounded-2xl border border-gray-100 dark:border-border flex flex-col items-center justify-center cursor-pointer hover:shadow-md dark:hover:bg-accent/50 transition-all">
                 <Droplets className="w-6 h-6 text-destructive mb-3" />
                 <span className="text-xs font-bold text-gray-600 dark:text-muted-foreground text-center">New Collection</span>

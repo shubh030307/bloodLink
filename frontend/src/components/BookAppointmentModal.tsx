@@ -124,7 +124,7 @@ const BookAppointmentModal = ({ isOpen, onClose, donorId, onSuccess }: BookAppoi
             <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center gap-1">
               <Clock className="w-4 h-4" /> Time Slot
             </label>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
               {['09:00 AM', '10:30 AM', '01:00 PM', '03:30 PM'].map(time => (
                 <button
                   key={time}

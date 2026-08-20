@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../app';
 import crypto from 'crypto';
+import { generateIdentifier, generateQrToken } from '../utils/securityUtils';
 
 export const bookAppointment = async (req: Request, res: Response): Promise<any> => {
   try {
@@ -72,8 +73,8 @@ export const bookAppointment = async (req: Request, res: Response): Promise<any>
       if (existing) throw new Error('DUPLICATE_BOOKING');
 
       const count = await tx.appointment.count();
-      const appointmentNumber = `APT-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
-      const qrToken = `APT-TOKEN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      const appointmentNumber = generateIdentifier('APT', count);
+      const qrToken = generateQrToken('APT-TOKEN', 4);
       const qrExpiresAt = new Date(slot.startTime.getTime() + 5 * 60 * 60 * 1000); 
 
       // 5. Create Appointment
@@ -169,8 +170,8 @@ export const staffBookAppointment = async (req: Request, res: Response): Promise
       if (existing) throw new Error('DUPLICATE_BOOKING');
 
       const count = await tx.appointment.count();
-      const appointmentNumber = `APT-${new Date().getFullYear()}-${String(count + 1).padStart(6, '0')}`;
-      const qrToken = `APT-TOKEN-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+      const appointmentNumber = generateIdentifier('APT', count);
+      const qrToken = generateQrToken('APT-TOKEN', 4);
       const qrExpiresAt = new Date(slot.startTime.getTime() + 5 * 60 * 60 * 1000); 
 
       return await tx.appointment.create({

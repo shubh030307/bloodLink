@@ -1,32 +1,35 @@
 import { FileText, Download, FileSpreadsheet, PieChart, TrendingUp, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
+import api from '../../services/api';
 
 const Reports = () => {
   const [generating, setGenerating] = useState<string | null>(null);
 
-  const handleGenerate = (reportId: string, title: string) => {
+  const handleGenerate = async (reportId: string, title: string) => {
     setGenerating(reportId);
     
-    // Simulate generation time then trigger direct download
-    setTimeout(() => {
-      setGenerating(null);
+    try {
+      const response = await api.get(`/reports/${reportId}/download`, {
+        responseType: 'blob'
+      });
       
-      // Create a dummy CSV content
-      const csvContent = "ID,Name,Date,Status\n1,Sample Data,2026-08-20,Active\n2,More Data,2026-08-21,Pending";
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const blob = new Blob([response.data], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       
-      // Create a temporary link and trigger download
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `${title.replace(/\s+/g, '_').toLowerCase()}_${new Date().toISOString().split('T')[0]}.csv`);
       document.body.appendChild(link);
       link.click();
       
-      // Cleanup
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
-    }, 1500);
+    } catch (error) {
+      console.error('Failed to generate report', error);
+      alert('Failed to generate report. Make sure you are authorized.');
+    } finally {
+      setGenerating(null);
+    }
   };
 
   const reports = [
@@ -72,7 +75,7 @@ const Reports = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-6">
         {reports.map((report) => (
           <div key={report.id} className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700 flex flex-col justify-between group hover:shadow-md transition-shadow">
             <div className="flex items-start mb-6">

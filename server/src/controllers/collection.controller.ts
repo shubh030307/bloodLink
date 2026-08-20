@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
-import { prisma } from '../server';
+import { prisma } from '../app';
+import { generateOTP } from '../utils/securityUtils';
 
 interface AuthRequest extends Request {
   user?: { userId: string; role: string };
@@ -191,7 +192,14 @@ export const uploadCollectionForm = async (req: AuthRequest, res: Response): Pro
       return;
     }
 
-    const documentUrl = `/uploads/${req.file.filename}`;
+    // Upload to Supabase Storage
+    const uniqueSuffix = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+    const ext = req.file.originalname.split('.').pop();
+    const filePath = `collection-${collectionRecordId}-${uniqueSuffix}.${ext}`;
+    
+    // Lazy load the supabase client to avoid top-level require issues
+    const { uploadBufferToSupabase } = await import('../utils/supabaseClient');
+    const documentUrl = await uploadBufferToSupabase('uploads', `forms/${filePath}`, req.file.buffer, req.file.mimetype);
 
     const form = await prisma.physicalCollectionForm.create({
       data: {
@@ -384,7 +392,7 @@ export const completeCollection = async (req: AuthRequest, res: Response): Promi
       });
 
       // Generate OTP right at the end of collection
-      const rawOtp = Math.floor(100000 + Math.random() * 900000).toString();
+      const rawOtp = generateOTP();
       await tx.otpVerification.create({
         data: {
           donationId: donation.id,

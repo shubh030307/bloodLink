@@ -113,7 +113,7 @@ const DonorProfile = () => {
                </div>
              )}
              
-             <div className="w-full grid grid-cols-2 gap-4 border-t border-gray-100 dark:border-border pt-6">
+             <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 dark:border-border pt-6">
                 <div className="bg-red-50 dark:bg-slate-800/50 rounded-2xl p-4 flex flex-col items-center justify-center border border-red-50 dark:border-slate-700/50 transition-colors">
                   <div className="w-8 h-8 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center mb-2 text-red-500 dark:text-red-400">
                     <Calendar className="w-4 h-4" />
@@ -235,7 +235,7 @@ const DonorProfile = () => {
               Emergency Contact
             </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
+            <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
               <div>
                 <label className="block text-xs font-bold text-gray-400 dark:text-muted-foreground uppercase tracking-widest mb-2">Contact Name</label>
                 {isEditing ? (

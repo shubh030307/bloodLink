@@ -70,7 +70,7 @@ const DonorAppointments = () => {
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">{appt.camp?.name ? `[CAMP] ${appt.camp.name}` : appt.bloodBank?.name || 'Unknown Location'}</h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-muted-foreground">
+                <div className="grid grid-cols-1 md:grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-600 dark:text-muted-foreground">
                   <div className="flex items-center">
                     <Calendar className="w-4 h-4 mr-2 text-blood-500" />
                     {new Date(appt.date).toLocaleDateString()}

@@ -1,6 +1,6 @@
 import PDFDocument from 'pdfkit';
-import path from 'path';
-import fs from 'fs';
+import { uploadBufferToSupabase } from './supabaseClient';
+import crypto from 'crypto';
 
 interface ReportData {
   reportNumber: string;
@@ -18,16 +18,20 @@ export const generateLabReportPdf = async (data: ReportData): Promise<string> =>
     try {
       const doc = new PDFDocument({ margin: 50, size: 'A4' });
       
-      const reportsDir = path.join(__dirname, '../../uploads/reports');
-      if (!fs.existsSync(reportsDir)) {
-        fs.mkdirSync(reportsDir, { recursive: true });
-      }
-
-      const fileName = `${data.reportNumber}.pdf`;
-      const filePath = path.join(reportsDir, fileName);
-      const writeStream = fs.createWriteStream(filePath);
-
-      doc.pipe(writeStream);
+      const buffers: Buffer[] = [];
+      doc.on('data', buffers.push.bind(buffers));
+      doc.on('end', async () => {
+        try {
+          const pdfData = Buffer.concat(buffers);
+          const fileName = `${data.reportNumber}-${crypto.randomUUID().replace(/-/g, '').substring(0, 8)}.pdf`;
+          
+          const publicUrl = await uploadBufferToSupabase('reports', fileName, pdfData, 'application/pdf');
+          resolve(publicUrl);
+        } catch (uploadError) {
+          reject(uploadError);
+        }
+      });
+      doc.on('error', reject);
 
       // Header
       doc.fontSize(20).font('Helvetica-Bold').text('BLOODLINK', { align: 'center' });
@@ -72,15 +76,6 @@ export const generateLabReportPdf = async (data: ReportData): Promise<string> =>
       }
 
       doc.end();
-
-      writeStream.on('finish', () => {
-        // Return relative path to be stored in DB
-        resolve(`/uploads/reports/${fileName}`);
-      });
-
-      writeStream.on('error', (err) => {
-        reject(err);
-      });
 
     } catch (error) {
       reject(error);

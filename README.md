@@ -70,3 +70,36 @@ project-root/
 - **Database Changes**: Always update `server/prisma/schema.prisma` and run `npx prisma db push`.
 - **New API Routes**: Create a controller in `server/src/controllers/`, map it in `server/src/routes/`, and attach it in `server/src/server.ts`.
 - **Environment Variables**: Never commit real `.env` files. Ensure placeholders are provided in `.env.example`.
+
+## Responsive Web Architecture
+The frontend web application employs a fluid layout design supporting arbitrary screen widths and ratios without user-agent hacks.
+- **Fluid Layouts**: Tables and internal content use `overflow-x-auto` to protect flex boundaries.
+- **Tailwind Grid Constraints**: Heavy use of `sm:` and `md:` prefixes seamlessly stack navigation components and forms from Desktop to Tablet/Mobile orientations.
+- **Viewport Heights**: Modals and full-screen layouts use dynamic viewport heights (`dvh`) to bypass overlapping issues with mobile Safari/Chrome address bars.
+
+Supported device classes tested and maintained:
+* Phones (Portrait/Landscape): Small (<375px), Large (up to 430px)
+* Foldables & Tablets: iPads, Samsung Tabs (600px - 1024px)
+* Web: Laptops (720p/1080p), Ultra-wides (1440p+)
+
+## Mobile Application
+A native mobile application is located inside the `mobile/` directory, built on **React Native (Expo)** to closely align with the existing TypeScript + Tailwind (NativeWind) web architecture.
+
+### Shared Backend
+The web and mobile applications operate on **the same backend API and database**. The mobile application maintains authentication sessions exactly as the web application does using the same Node.js infrastructure. 
+
+### Mobile Setup
+1. **Navigate to the directory**:
+   ```bash
+   cd mobile
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Set API URL**: Ensure `src/services/api.js` points to your backend IP (e.g. `http://10.0.2.2:5000/api` for emulator or physical machine IP for devices).
+4. **Run Expo Server**:
+   ```bash
+   npm start
+   ```
+5. Choose your target (press `a` for Android Emulator or scan QR for physical device testing).
