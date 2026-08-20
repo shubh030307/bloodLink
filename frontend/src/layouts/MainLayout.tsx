@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { LogOut, Home, Users, Activity, Calendar, Settings, FileText, Search, Award, Clock, User, Moon, Sun, ClipboardList, Microscope, Bell, HelpCircle, Plus, MapPin, Menu, X } from 'lucide-react';
+import { LogOut, Home, Users, Activity, Calendar, Settings, FileText, Search, Award, Clock, User, Moon, Sun, ClipboardList, Microscope, Bell, HelpCircle, Plus, MapPin } from 'lucide-react';
 
 const MainLayout = () => {
   const { isAuthenticated, logout, user } = useAuth();
   const location = useLocation();
   const [darkMode, setDarkMode] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (darkMode) {
@@ -17,10 +16,7 @@ const MainLayout = () => {
     }
   }, [darkMode]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setIsMobileMenuOpen(false);
-  }, [location.pathname]);
+  // Dark mode effect
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -100,17 +96,68 @@ const MainLayout = () => {
     }
   };
 
+  const renderBottomNavLinks = () => {
+    switch (user?.role) {
+      case 'Donor':
+        return (
+          <>
+            <BottomNavItem to="/" icon={<Home />} label="Home" active={location.pathname === '/'} />
+            <BottomNavItem to="/donor/book" icon={<Calendar />} label="Book" active={location.pathname === '/donor/book'} />
+            <BottomNavItem to="/donor/appointments" icon={<Clock />} label="Appts" active={location.pathname === '/donor/appointments'} />
+            <BottomNavItem to="/donor/profile" icon={<User />} label="Profile" active={location.pathname === '/donor/profile'} />
+          </>
+        );
+      case 'Admin':
+        return (
+          <>
+            <BottomNavItem to="/" icon={<Home />} label="Home" active={location.pathname === '/'} />
+            <BottomNavItem to="/inventory" icon={<Activity />} label="Inventory" active={location.pathname === '/inventory'} />
+            <BottomNavItem to="/requests" icon={<FileText />} label="Requests" active={location.pathname === '/requests'} />
+            <BottomNavItem to="/settings" icon={<Settings />} label="Settings" active={location.pathname === '/settings'} />
+          </>
+        );
+      case 'Receptionist':
+        return (
+          <>
+            <BottomNavItem to="/" icon={<Home />} label="Home" active={location.pathname === '/'} />
+            <BottomNavItem to="/appointments" icon={<Calendar />} label="Appts" active={location.pathname === '/appointments'} />
+            <BottomNavItem to="/donors" icon={<Users />} label="Donors" active={location.pathname === '/donors'} />
+            <BottomNavItem to="/camps" icon={<MapPin />} label="Camps" active={location.pathname === '/camps'} />
+          </>
+        );
+      case 'CollectionStaff':
+        return (
+          <>
+            <BottomNavItem to="/appointments" icon={<Calendar />} label="Appts" active={location.pathname === '/appointments'} />
+            <BottomNavItem to="/camps" icon={<MapPin />} label="Camps" active={location.pathname === '/camps'} />
+            <BottomNavItem to="/collection" icon={<ClipboardList />} label="Collect" active={location.pathname === '/collection'} />
+          </>
+        );
+      case 'LabTechnician':
+        return (
+          <>
+            <BottomNavItem to="/" icon={<Home />} label="Home" active={location.pathname === '/'} />
+            <BottomNavItem to="/lab/dashboard" icon={<Microscope />} label="Lab" active={location.pathname === '/lab/dashboard' || location.pathname === '/lab/queue'} />
+            <BottomNavItem to="/lab/history" icon={<FileText />} label="History" active={location.pathname === '/lab/history'} />
+          </>
+        );
+      case 'Hospital':
+        return (
+          <>
+            <BottomNavItem to="/" icon={<Home />} label="Home" active={location.pathname === '/'} />
+            <BottomNavItem to="/search" icon={<Search />} label="Search" active={location.pathname === '/search'} />
+            <BottomNavItem to="/requests" icon={<FileText />} label="Requests" active={location.pathname === '/requests'} />
+          </>
+        );
+      default:
+        return (
+          <BottomNavItem to="/" icon={<Home />} label="Home" active={location.pathname === '/'} />
+        );
+    }
+  };
+
   return (
     <div className="min-h-dvh h-dvh overflow-hidden flex bg-[#f8f9fc] dark:bg-background font-sans relative">
-      
-      {/* Mobile Sidebar Overlay */}
-      {isMobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-
       {/* Left Sidebar */}
       <aside className={`
         fixed lg:static inset-y-0 left-0 z-50
@@ -119,20 +166,13 @@ const MainLayout = () => {
         flex flex-col justify-between overflow-hidden 
         shadow-2xl lg:shadow-sm dark:shadow-none 
         border-r lg:border border-gray-100 dark:border-border print:hidden
-        transition-transform duration-300 ease-in-out
-        ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+        translate-x-0
       `}>
-        <div className="p-6 overflow-y-auto custom-scrollbar">
+        <div className="p-6 overflow-y-auto custom-scrollbar hidden lg:block">
           <div className="flex items-center justify-between lg:justify-center mb-8">
             <Link to="/">
               <img src={darkMode ? "/dark-mode-2.png" : "/logo-chatgpt.png"} alt="bloodLink" className="h-10 lg:h-14 w-auto object-contain rounded-md mix-blend-multiply dark:mix-blend-normal" />
             </Link>
-            <button 
-              className="lg:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <X className="w-6 h-6" />
-            </button>
           </div>
 
           <nav className="space-y-1">
@@ -166,12 +206,6 @@ const MainLayout = () => {
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 lg:p-6 mb-2 lg:mb-4 shrink-0 border-b lg:border-none border-gray-200 dark:border-border bg-white lg:bg-transparent dark:bg-card lg:dark:bg-transparent print:hidden gap-4">
           
           <div className="flex items-center w-full sm:w-auto gap-3">
-            <button 
-              className="lg:hidden p-2 text-gray-600 bg-gray-100 dark:bg-muted rounded-lg"
-              onClick={() => setIsMobileMenuOpen(true)}
-            >
-              <Menu className="w-6 h-6" />
-            </button>
             {/* Top Left: Search Bar or Title */}
             <div className="relative flex-1 sm:max-w-md w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 dark:text-muted-foreground" />
@@ -209,10 +243,17 @@ const MainLayout = () => {
           </div>
         </header>
 
-        <div className="flex-1 px-4 lg:px-6 overflow-y-auto overflow-x-hidden custom-scrollbar pb-20 lg:pb-6">
+        <div className="flex-1 px-4 lg:px-6 overflow-y-auto overflow-x-hidden custom-scrollbar pb-24 lg:pb-6 pt-[env(safe-area-inset-top)] page-transition" key={location.pathname}>
           <Outlet />
         </div>
       </main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-card border-t border-gray-200 dark:border-border z-50 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-around p-2">
+          {renderBottomNavLinks()}
+        </div>
+      </nav>
     </div>
   );
 };
@@ -222,6 +263,15 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
     <Link to={to} className={`flex items-center space-x-3 px-4 py-3 sm:py-3.5 rounded-xl sm:rounded-2xl transition-all duration-300 mb-1 border-l-4 ${active ? 'bg-red-600 text-white font-bold shadow-md shadow-red-500/20 border-red-800' : 'border-transparent text-gray-600 dark:text-muted-foreground hover:bg-red-50 hover:text-red-600 dark:hover:bg-accent dark:hover:text-red-400 font-medium'}`}>
       {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-5 h-5 shrink-0' })}
       <span className="truncate">{label}</span>
+    </Link>
+  );
+};
+
+const BottomNavItem = ({ to, icon, label, active = false }: { to: string, icon: React.ReactNode, label: string, active?: boolean }) => {
+  return (
+    <Link to={to} className={`flex flex-col items-center justify-center w-16 h-14 space-y-1 rounded-xl transition-all ${active ? 'text-red-600' : 'text-gray-500 dark:text-muted-foreground'}`}>
+      {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-6 h-6' })}
+      <span className="text-[10px] font-medium tracking-wide truncate w-full text-center">{label}</span>
     </Link>
   );
 };
