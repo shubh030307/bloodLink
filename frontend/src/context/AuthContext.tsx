@@ -37,9 +37,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const response = await api.get('/auth/me');
         setUser(response.data);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch user', error);
-        logout();
+        if (error.response?.status === 401) {
+          logout();
+        }
       } finally {
         setLoading(false);
       }
