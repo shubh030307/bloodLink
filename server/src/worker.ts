@@ -1,6 +1,8 @@
 import { httpServerHandler } from 'cloudflare:node';
 import { app } from './app';
 
-const server: any = app;
-server.address = () => ({ port: 8080 });
+const server = app.listen(8080, () => {
+  console.log('Cloudflare Edge server started on port 8080');
+});
+
 export default httpServerHandler(server);
