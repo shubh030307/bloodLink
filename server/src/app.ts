@@ -38,7 +38,12 @@ const getPrisma = () => {
     if (isCloudflare) {
       // Use Edge-compatible PG driver
       const connectionString = process.env.DATABASE_URL!;
-      const pool = new Pool({ connectionString });
+      const pool = new Pool({ 
+        connectionString,
+        max: 3,
+        idleTimeoutMillis: 1000, // Drop connections quickly to avoid dead TCP sockets across worker hibernations
+        connectionTimeoutMillis: 10000 
+      });
       const adapter = new PrismaPg(pool);
       prismaInstance = new PrismaClient({ adapter });
     } else {
