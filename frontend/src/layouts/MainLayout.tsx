@@ -160,10 +160,11 @@ const MainLayout = () => {
     <div className="min-h-dvh h-dvh overflow-hidden flex bg-[#f8f9fc] dark:bg-background font-sans relative">
       {/* Left Sidebar */}
       <aside className={`
+        hidden lg:flex
         fixed lg:static inset-y-0 left-0 z-50
         w-72 lg:w-64 bg-white dark:bg-card 
         lg:m-4 m-0 lg:rounded-[2rem] rounded-none
-        flex flex-col justify-between overflow-hidden 
+        flex-col justify-between overflow-hidden 
         shadow-2xl lg:shadow-sm dark:shadow-none 
         border-r lg:border border-gray-100 dark:border-border print:hidden
         translate-x-0
@@ -249,8 +250,8 @@ const MainLayout = () => {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-card border-t border-gray-200 dark:border-border z-50 pb-[env(safe-area-inset-bottom)]">
-        <div className="flex items-center justify-around p-2">
+      <nav className="lg:hidden fixed bottom-6 left-4 right-4 z-50 pb-[env(safe-area-inset-bottom)]">
+        <div className="flex items-center justify-around p-1.5 bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border border-white/40 dark:border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] rounded-full">
           {renderBottomNavLinks()}
         </div>
       </nav>
@@ -269,9 +270,9 @@ const NavItem = ({ to, icon, label, active = false }: { to: string, icon: React.
 
 const BottomNavItem = ({ to, icon, label, active = false }: { to: string, icon: React.ReactNode, label: string, active?: boolean }) => {
   return (
-    <Link to={to} className={`flex flex-col items-center justify-center w-16 h-14 space-y-1 rounded-xl transition-all ${active ? 'text-red-600' : 'text-gray-500 dark:text-muted-foreground'}`}>
-      {React.cloneElement(icon as React.ReactElement<any>, { className: 'w-6 h-6' })}
-      <span className="text-[10px] font-medium tracking-wide truncate w-full text-center">{label}</span>
+    <Link to={to} className={`relative flex flex-col items-center justify-center w-14 h-14 rounded-full transition-all duration-300 ${active ? 'text-red-600 bg-white dark:bg-slate-800 shadow-sm border border-gray-100 dark:border-slate-700' : 'text-gray-500 hover:text-gray-700 dark:text-muted-foreground'}`}>
+      {React.cloneElement(icon as React.ReactElement<any>, { className: `w-5 h-5 ${active ? 'scale-110 drop-shadow-sm' : ''}` })}
+      <span className="text-[10px] font-semibold tracking-wide mt-1">{label}</span>
     </Link>
   );
 };
