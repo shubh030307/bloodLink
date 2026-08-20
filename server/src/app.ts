@@ -30,6 +30,8 @@ import reportRoutes from './routes/report.routes';
 dotenv.config();
 
 let prismaInstance: PrismaClient | null = null;
+let currentPool: Pool | null = null;
+let activeRequests = 0;
 
 const getPrisma = () => {
   if (!prismaInstance) {
@@ -38,14 +40,14 @@ const getPrisma = () => {
     if (isCloudflare) {
       // Use Edge-compatible PG driver
       const connectionString = process.env.DATABASE_URL!;
-      const pool = new Pool({ 
+      currentPool = new Pool({ 
         connectionString,
-        max: 15,
-        idleTimeoutMillis: 1, // Close immediately on edge
+        max: 5,
+        idleTimeoutMillis: 1000, 
         connectionTimeoutMillis: 5000,
         allowExitOnIdle: true
       });
-      const adapter = new PrismaPg(pool);
+      const adapter = new PrismaPg(currentPool);
       prismaInstance = new PrismaClient({ adapter });
     } else {
       // Use standard Prisma engine for local Node.js
@@ -73,6 +75,25 @@ export const prisma = new Proxy({} as PrismaClient, {
 });
 
 export const app = expressServer();
+
+// Cloudflare Workers Connection Pool Cleanup
+app.use((req, res, next) => {
+  const isCloudflare = process.env.CLOUDFLARE_WORKER === 'true';
+  if (isCloudflare) {
+    activeRequests++;
+    res.on('finish', () => {
+      activeRequests--;
+      if (activeRequests === 0 && currentPool) {
+        // Destroy the pool so the next request creates a fresh one.
+        // This prevents Cloudflare Workers from hanging on dead TCP sockets.
+        currentPool.end();
+        currentPool = null;
+        prismaInstance = null;
+      }
+    });
+  }
+  next();
+});
 
 // Security Middlewares
 app.use(helmet());
