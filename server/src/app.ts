@@ -40,9 +40,9 @@ const getPrisma = () => {
       const connectionString = process.env.DATABASE_URL!;
       const pool = new Pool({ 
         connectionString,
-        max: 3,
-        idleTimeoutMillis: 1000, // Drop connections quickly to avoid dead TCP sockets across worker hibernations
-        connectionTimeoutMillis: 10000 
+        max: 15,
+        idleTimeoutMillis: 30000, // 30 seconds
+        connectionTimeoutMillis: 5000 
       });
       const adapter = new PrismaPg(pool);
       prismaInstance = new PrismaClient({ adapter });
@@ -72,17 +72,6 @@ export const prisma = new Proxy({} as PrismaClient, {
 });
 
 export const app = expressServer();
-
-// Cleanly disconnect Prisma in Cloudflare Workers to prevent socket exhaustion/hanging
-app.use((req, res, next) => {
-  res.on('finish', () => {
-    if (process.env.CLOUDFLARE_WORKER === 'true' && prismaInstance) {
-      prismaInstance.$disconnect().catch(() => {});
-      prismaInstance = null; // Ensure next request creates a new instance
-    }
-  });
-  next();
-});
 
 // Security Middlewares
 app.use(helmet());
