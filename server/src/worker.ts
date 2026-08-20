@@ -5,4 +5,4 @@ const server = app.listen(8080, () => {
   console.log('Cloudflare Edge server started on port 8080');
 });
 
-export default httpServerHandler(server);
+export default httpServerHandler(server as any);
