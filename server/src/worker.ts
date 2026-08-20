@@ -5,4 +5,5 @@ const server = app.listen(8080, () => {
   console.log('Cloudflare Edge server started on port 8080');
 });
 
-export default httpServerHandler(server as any);
+// @ts-ignore - Cloudflare's NodeStyleServer type is slightly incompatible with Express's http.Server
+export default httpServerHandler(server);
