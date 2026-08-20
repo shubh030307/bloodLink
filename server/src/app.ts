@@ -33,7 +33,7 @@ let prismaInstance: PrismaClient | null = null;
 
 const getPrisma = () => {
   if (!prismaInstance) {
-    const isCloudflare = typeof (process as any) !== 'undefined' && (process as any).release?.name === 'workerd';
+    const isCloudflare = process.env.CLOUDFLARE_WORKER === 'true';
     
     if (isCloudflare) {
       // Use Edge-compatible PG driver
