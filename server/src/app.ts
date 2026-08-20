@@ -41,8 +41,9 @@ const getPrisma = () => {
       const pool = new Pool({ 
         connectionString,
         max: 15,
-        idleTimeoutMillis: 30000, // 30 seconds
-        connectionTimeoutMillis: 5000 
+        idleTimeoutMillis: 1, // Close immediately on edge
+        connectionTimeoutMillis: 5000,
+        allowExitOnIdle: true
       });
       const adapter = new PrismaPg(pool);
       prismaInstance = new PrismaClient({ adapter });
