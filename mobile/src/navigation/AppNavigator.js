@@ -22,7 +22,7 @@ export default function AppNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {user ? (
-        <Stack.Screen name="Main" component={DashboardScreen} />
+        <Stack.Screen name="Main" component={MainTabNavigator} />
       ) : (
         <Stack.Screen name="Auth" component={LoginScreen} />
       )}
