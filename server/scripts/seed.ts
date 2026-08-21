@@ -109,11 +109,12 @@ async function main() {
   const today = new Date();
   await prisma.donationSlot.upsert({
     where: { id: 'slot-1' },
-    update: { date: today },
+    update: { date: today, startTime: today },
     create: {
       id: 'slot-1',
       bloodBankId: bloodBank1.id,
       date: today,
+      startTime: today,
       timeSlot: '10:00 AM',
       capacity: 10
     }
@@ -121,11 +122,12 @@ async function main() {
 
   await prisma.donationSlot.upsert({
     where: { id: 'slot-2' },
-    update: { date: today },
+    update: { date: today, startTime: today },
     create: {
       id: 'slot-2',
       bloodBankId: bloodBank2.id,
       date: today,
+      startTime: today,
       timeSlot: '11:00 AM',
       capacity: 15
     }
