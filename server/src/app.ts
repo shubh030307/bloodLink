@@ -77,23 +77,9 @@ export const prisma = new Proxy({} as PrismaClient, {
 export const app = expressServer();
 
 // Cloudflare Workers Connection Pool Cleanup
-app.use((req, res, next) => {
-  const isCloudflare = process.env.CLOUDFLARE_WORKER === 'true';
-  if (isCloudflare) {
-    activeRequests++;
-    res.on('finish', () => {
-      activeRequests--;
-      if (activeRequests === 0 && currentPool) {
-        // Destroy the pool so the next request creates a fresh one.
-        // This prevents Cloudflare Workers from hanging on dead TCP sockets.
-        currentPool.end();
-        currentPool = null;
-        prismaInstance = null;
-      }
-    });
-  }
-  next();
-});
+// (Removed: Destroying the pool on every request causes massive latency.
+// The Pool configuration already uses allowExitOnIdle: true, which properly
+// handles hanging TCP sockets without needing manual destruction.)
 
 // Security Middlewares
 app.use(helmet());
