@@ -21,14 +21,23 @@ const BookDonation = () => {
   useEffect(() => {
     const fetchLocations = async () => {
       try {
-        const [banksRes, campsRes] = await Promise.all([
+        const [banksRes, campsRes] = await Promise.allSettled([
           api.get('/appointments/blood-banks'),
-          api.get('/camps') // Needs camp routes exposed, we assume it is accessible
+          api.get('/camps') 
         ]);
-        const banks = banksRes.data.map((b: any) => ({ ...b, type: 'bank', displayName: b.name, displayAddress: b.address }));
-        const camps = campsRes.data
-          .filter((c: any) => c.status === 'OPEN')
-          .map((c: any) => ({ ...c, type: 'camp', displayName: `[CAMP] ${c.name}`, displayAddress: c.location }));
+        
+        let banks = [];
+        let camps = [];
+        
+        if (banksRes.status === 'fulfilled') {
+          banks = banksRes.value.data.map((b: any) => ({ ...b, type: 'bank', displayName: b.name, displayAddress: b.address }));
+        }
+        
+        if (campsRes.status === 'fulfilled') {
+          camps = campsRes.value.data
+            .filter((c: any) => c.status === 'OPEN')
+            .map((c: any) => ({ ...c, type: 'camp', displayName: `[CAMP] ${c.name}`, displayAddress: c.location }));
+        }
         
         setLocations([...banks, ...camps]);
       } catch (error) {
