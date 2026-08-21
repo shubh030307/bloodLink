@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { Scan, AlertTriangle, ArrowRight, Loader2, Camera, X } from 'lucide-react';
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
@@ -19,10 +19,7 @@ export default function LabScan() {
     setSuccessData(null);
 
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/lab/scan', { stickerId: id }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const response = await api.post('/lab/scan', { stickerId: id });
       
       setSuccessData(response.data.bloodUnit);
     } catch (err: any) {
@@ -85,11 +82,7 @@ export default function LabScan() {
     if (!successData) return;
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.post('http://localhost:5000/api/lab/testing/start', 
-        { bloodUnitId: successData.id }, 
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      const response = await api.post('/lab/testing/start', { bloodUnitId: successData.id });
       navigate(`/lab/unit/${successData.id}/testing`, { state: { sessionId: response.data.session.id } });
     } catch (err: any) {
       console.error('Failed to start testing:', err);

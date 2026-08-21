@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { FileText, CheckCircle, XCircle, AlertTriangle, Loader2 } from 'lucide-react';
 
 export default function LabReportReview() {
@@ -21,10 +21,7 @@ export default function LabReportReview() {
   useEffect(() => {
     const fetchUnit = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`http://localhost:5000/api/lab/unit/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get(`/lab/unit/${id}`);
         
         if (res.data.status !== 'REPORT_REVIEW') {
           navigate('/lab/dashboard'); // Or show an error that it's already processed
@@ -47,12 +44,9 @@ export default function LabReportReview() {
     setActionLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/lab/review/approve', {
+      await api.post('/lab/review/approve', {
         bloodUnitId: id,
         reportId: unit.labReport.id
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/lab/dashboard');
     } catch (err: any) {
@@ -73,15 +67,12 @@ export default function LabReportReview() {
     setActionLoading(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5000/api/lab/review/reject', {
+      await api.post('/lab/review/reject', {
         bloodUnitId: id,
         reportId: unit.labReport.id,
         category: rejectCategory,
         internalReason,
         donorFacingReason: donorReason
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
       });
       navigate('/lab/dashboard');
     } catch (err: any) {

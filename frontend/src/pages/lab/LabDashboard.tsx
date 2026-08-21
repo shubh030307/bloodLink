@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { Microscope, Activity, AlertCircle, CheckCircle2, Clock, XCircle, Search } from 'lucide-react';
 
 export default function LabDashboard() {
@@ -11,10 +11,7 @@ export default function LabDashboard() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/lab/dashboard', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/lab/dashboard');
         setStats(response.data);
       } catch (error) {
         console.error('Failed to fetch lab stats:', error);

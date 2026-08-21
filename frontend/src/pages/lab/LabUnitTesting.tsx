@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { Microscope, Save, CheckCircle2, AlertTriangle, Loader2 } from 'lucide-react';
 
 export default function LabUnitTesting() {
@@ -26,9 +26,9 @@ export default function LabUnitTesting() {
       try {
         const token = localStorage.getItem('token');
         const [unitRes, testsRes, prevResultsRes] = await Promise.all([
-          axios.get(`http://localhost:5000/api/lab/unit/${id}`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`http://localhost:5000/api/lab/tests`, { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get(`http://localhost:5000/api/lab/session/${sessionId}/results`, { headers: { Authorization: `Bearer ${token}` } })
+          api.get(`/lab/unit/${id}`),
+          api.get(`/lab/tests`),
+          api.get(`/lab/session/${sessionId}/results`)
         ]);
 
         setUnit(unitRes.data);
@@ -70,9 +70,7 @@ export default function LabUnitTesting() {
         ...results[testId]
       }));
 
-      await axios.post('http://localhost:5000/api/lab/testing/save', { sessionId, results: payload }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/lab/testing/save', { sessionId, results: payload });
       // Optionally show a toast here
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to save results.');
@@ -92,19 +90,13 @@ export default function LabUnitTesting() {
         testId,
         ...results[testId]
       }));
-      await axios.post('http://localhost:5000/api/lab/testing/save', { sessionId, results: payload }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/lab/testing/save', { sessionId, results: payload });
 
       // 2. Complete session
-      await axios.post('http://localhost:5000/api/lab/testing/complete', { sessionId }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/lab/testing/complete', { sessionId });
 
       // 3. Generate report
-      await axios.post('http://localhost:5000/api/lab/report/generate', { bloodUnitId: id }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await api.post('/lab/report/generate', { bloodUnitId: id });
 
       // 4. Navigate to Review
       navigate(`/lab/unit/${id}/review`);

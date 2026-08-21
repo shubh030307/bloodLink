@@ -107,28 +107,30 @@ async function main() {
   
   // Create dummy DonationSlots for testing
   const today = new Date();
+  const endTime1 = new Date(today.getTime() + 60 * 60 * 1000); // +1 hour
   await prisma.donationSlot.upsert({
     where: { id: 'slot-1' },
-    update: { date: today, startTime: today },
+    update: { date: today, startTime: today, endTime: endTime1 },
     create: {
       id: 'slot-1',
       bloodBankId: bloodBank1.id,
       date: today,
       startTime: today,
-      timeSlot: '10:00 AM',
+      endTime: endTime1,
       capacity: 10
     }
   });
 
+  const endTime2 = new Date(today.getTime() + 2 * 60 * 60 * 1000);
   await prisma.donationSlot.upsert({
     where: { id: 'slot-2' },
-    update: { date: today, startTime: today },
+    update: { date: today, startTime: today, endTime: endTime2 },
     create: {
       id: 'slot-2',
       bloodBankId: bloodBank2.id,
       date: today,
       startTime: today,
-      timeSlot: '11:00 AM',
+      endTime: endTime2,
       capacity: 15
     }
   });

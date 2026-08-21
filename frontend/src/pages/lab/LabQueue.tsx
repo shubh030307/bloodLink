@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api from '../../services/api';
 import { Search, Clock, CheckCircle } from 'lucide-react';
 
 export default function LabQueue() {
@@ -12,10 +12,7 @@ export default function LabQueue() {
   useEffect(() => {
     const fetchQueue = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5000/api/lab/queue', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const response = await api.get('/lab/queue');
         setQueue(response.data);
       } catch (error) {
         console.error('Failed to fetch lab queue:', error);

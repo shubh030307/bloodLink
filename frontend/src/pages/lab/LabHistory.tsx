@@ -37,8 +37,8 @@ const LabHistory = () => {
 
   const handleDownload = (path: string | null) => {
     if (!path) return;
-    // Construct full URL assuming the backend hosts the uploads folder statically
-    const url = `http://localhost:5000${path}`;
+    const baseUrl = import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:5000';
+    const url = path.startsWith('http') ? path : `${baseUrl}${path}`;
     window.open(url, '_blank');
   };
 

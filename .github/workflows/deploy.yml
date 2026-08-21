@@ -1,17 +1,17 @@
-name: Deploy API to Cloudflare Workers
+name: BloodLink CI
 
 on:
   push:
     branches:
       - main
-    # Only trigger the deployment if files in the server folder change
-    paths:
-      - 'server/**'
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  deploy:
+  frontend-build:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Frontend Build Check
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -22,12 +22,12 @@ jobs:
           node-version: '20'
 
       - name: Install Dependencies
-        working-directory: ./server
+        working-directory: ./frontend
         run: npm ci
 
-      - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'server'
+      - name: Build Frontend
+        working-directory: ./frontend
+        run: npm run build
+        
+  # Note: Backend deployment is handled automatically via Render Git Integration
+  # Frontend deployment is handled automatically via Cloudflare Pages Git Integration

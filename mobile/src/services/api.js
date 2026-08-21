@@ -2,8 +2,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // In Expo, localhost typically maps to your machine's IP, but for Android emulator it's 10.0.2.2.
-// We are dynamically setting this to your machine's local Wi-Fi IP so you can test on your phone.
-const API_URL = 'http://10.160.24.244:5000/api'; 
+// We use EXPO_PUBLIC_ prefix so it is injected into the bundle at build time.
+// Fallback to local IP for dev if not provided.
+const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://10.160.24.244:5000/api'; 
 
 const api = axios.create({
   baseURL: API_URL,
