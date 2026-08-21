@@ -9,7 +9,7 @@ export const getDonorProfile = async (req: Request, res: Response): Promise<void
       include: {
         user: { select: { name: true, email: true } },
         emergencyContact: true,
-        milestones: true
+        milestoneAchievements: true
       }
     });
 
