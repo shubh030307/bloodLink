@@ -65,9 +65,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           address: otherDetails.address || '',
           emergencyContact: {
             create: {
-              name: otherDetails.emergencyContactName || '',
-              relationship: otherDetails.emergencyContactRelationship || '',
-              mobileNumber: otherDetails.emergencyContactNumber || '',
+              name: otherDetails.emergencyContact?.name || otherDetails.emergencyContactName || '',
+              relationship: otherDetails.emergencyContact?.relationship || otherDetails.emergencyContactRelationship || '',
+              mobileNumber: otherDetails.emergencyContact?.mobileNumber || otherDetails.emergencyContactNumber || '',
             }
           }
         }

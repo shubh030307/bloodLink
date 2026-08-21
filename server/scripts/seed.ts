@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
@@ -70,32 +70,67 @@ async function main() {
     console.log(`Seeded user: ${email} / password123`);
   }
   
-  // Create a dummy BloodBank for testing
-  const bloodBank = await prisma.bloodBank.upsert({
+  // Create dummy BloodBanks for testing
+  const bloodBank1 = await prisma.bloodBank.upsert({
     where: { id: 'center-1' },
     update: {},
     create: {
       id: 'center-1',
-      name: 'Main Blood Center',
-      address: '123 Main St',
+      name: 'Central City Blood Bank',
+      address: '123 Main St, City Center',
       capacity: 100
     }
   });
-  console.log('Seeded Main Blood Center');
   
-  // Create a dummy DonationSlot for testing
-  await prisma.donationSlot.upsert({
-    where: { id: 'slot-1' },
+  const bloodBank2 = await prisma.bloodBank.upsert({
+    where: { id: 'center-2' },
     update: {},
     create: {
-      id: 'slot-1',
-      bloodBankId: bloodBank.id,
-      date: new Date('2026-08-19'),
-      timeSlot: '10:00 AM',
-      capacity: 5
+      id: 'center-2',
+      name: 'Hope Regional Blood Center',
+      address: '456 Hope Blvd, Westside',
+      capacity: 150
     }
   });
-  console.log('Seeded Donation Slot');
+
+  const bloodBank3 = await prisma.bloodBank.upsert({
+    where: { id: 'center-3' },
+    update: {},
+    create: {
+      id: 'center-3',
+      name: 'LifeGuard Blood Services',
+      address: '789 Life Rd, North District',
+      capacity: 80
+    }
+  });
+  console.log('Seeded Blood Banks');
+  
+  // Create dummy DonationSlots for testing
+  const today = new Date();
+  await prisma.donationSlot.upsert({
+    where: { id: 'slot-1' },
+    update: { date: today },
+    create: {
+      id: 'slot-1',
+      bloodBankId: bloodBank1.id,
+      date: today,
+      timeSlot: '10:00 AM',
+      capacity: 10
+    }
+  });
+
+  await prisma.donationSlot.upsert({
+    where: { id: 'slot-2' },
+    update: { date: today },
+    create: {
+      id: 'slot-2',
+      bloodBankId: bloodBank2.id,
+      date: today,
+      timeSlot: '11:00 AM',
+      capacity: 15
+    }
+  });
+  console.log('Seeded Donation Slots');
   
 }
 

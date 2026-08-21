@@ -282,12 +282,7 @@ const DonorDashboard = () => {
                 </div>
                 <span className="text-xs font-bold text-gray-700 dark:text-muted-foreground text-center">Book Donation</span>
               </Link>
-              <Link to="/search" className="flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-100 dark:border-border hover:shadow-md dark:hover:bg-accent/50 transition-all group cursor-pointer">
-                <div className="w-12 h-12 rounded-full bg-destructive/10 dark:bg-muted flex items-center justify-center mb-3 group-hover:bg-red-100 dark:group-hover:bg-slate-600 transition-colors">
-                  <Droplet className="w-5 h-5 text-destructive dark:text-red-400" />
-                </div>
-                <span className="text-xs font-bold text-gray-700 dark:text-muted-foreground text-center">Find Blood</span>
-              </Link>
+
               <div className="flex flex-col items-center justify-center p-4 rounded-2xl border border-gray-100 dark:border-border hover:shadow-md dark:hover:bg-accent/50 transition-all group cursor-pointer">
                 <div className="w-12 h-12 rounded-full bg-destructive/10 dark:bg-muted flex items-center justify-center mb-3 group-hover:bg-red-100 dark:group-hover:bg-slate-600 transition-colors">
                   <Users className="w-5 h-5 text-destructive dark:text-red-400" />

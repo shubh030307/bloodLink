@@ -79,16 +79,16 @@ export default function DashboardScreen() {
           <Text className="text-xs font-bold text-gray-400 tracking-wider mb-4">DONATION STATUS</Text>
           
           <View className="flex-row items-center gap-3 mb-4">
-            <CheckCircle2 color="#94a3b8" size={32} />
+            <CheckCircle2 color={eligibility?.status === 'Eligible' ? '#22c55e' : '#94a3b8'} size={32} />
             <Text className="text-4xl font-extrabold text-[#334155]">
-              {eligibility?.isEligible ? 'Eligible' : 'Unknown'}
+              {eligibility?.status === 'Eligible' ? 'Eligible' : (eligibility?.status || 'Unknown')}
             </Text>
           </View>
           
           <Text className="text-gray-500 text-sm mb-8 pr-16 leading-5">
-            {eligibility?.isEligible 
+            {eligibility?.status === 'Eligible' 
               ? 'You are currently eligible to donate blood and save lives!' 
-              : 'You are currently eligible to donate blood and save lives!'}
+              : 'You are currently deferred from donating blood. Check back later.'}
           </Text>
 
           <TouchableOpacity className="bg-[#e11d48] py-4 px-6 rounded-2xl flex-row items-center justify-center shadow-lg shadow-red-200 w-4/5">
