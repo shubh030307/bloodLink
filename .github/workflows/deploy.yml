@@ -1,4 +1,4 @@
-name: BloodLink CI
+name: BloodLink CI/CD
 
 on:
   push:
@@ -29,5 +29,23 @@ jobs:
         working-directory: ./frontend
         run: npm run build
         
-  # Note: Backend deployment is handled automatically via Render Git Integration
-  # Frontend deployment is handled automatically via Cloudflare Pages Git Integration
+  deploy-backend-oci:
+    needs: frontend-build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Deploy Backend to OCI
+    steps:
+      - name: Execute Remote SSH Commands
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.OCI_HOST }}
+          username: ${{ secrets.OCI_USERNAME }}
+          key: ${{ secrets.OCI_SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/bloodLink
+            git pull origin main
+            cd server
+            npm ci
+            npm run build
+            pm2 restart bloodlink-api || pm2 start dist/server.js --name bloodlink-api
+            pm2 save

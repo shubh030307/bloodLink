@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { getAllHospitals, updateHospitalStatus } from '../controllers/hospital.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

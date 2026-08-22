@@ -24,7 +24,7 @@ export default function LabUnitTesting() {
 
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
+
         const [unitRes, testsRes, prevResultsRes] = await Promise.all([
           api.get(`/lab/unit/${id}`),
           api.get(`/lab/tests`),
@@ -64,7 +64,7 @@ export default function LabUnitTesting() {
   const handleSaveDraft = async () => {
     setSaving(true);
     try {
-      const token = localStorage.getItem('token');
+
       const payload = Object.keys(results).map(testId => ({
         testId,
         ...results[testId]
@@ -83,7 +83,7 @@ export default function LabUnitTesting() {
     setSaving(true);
     setError(null);
     try {
-      const token = localStorage.getItem('token');
+
       
       // 1. Save results one last time
       const payload = Object.keys(results).map(testId => ({

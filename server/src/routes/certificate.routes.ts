@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { getMyCertificates, generateCertificate, generateMilestoneCertificate } from '../controllers/certificate.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

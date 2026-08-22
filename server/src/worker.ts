@@ -1,8 +1,18 @@
-import { httpServerHandler } from 'cloudflare:node';
 import { app } from './app';
 
-app.listen(8080, () => {
-  console.log('Cloudflare Edge server started on port 8080');
-});
+export default {
+  fetch(request: Request, env: any, ctx: ExecutionContext) {
+    // Inject env bindings globally or on the request context
+    process.env = { ...process.env, ...env };
 
-export default httpServerHandler({ port: 8080 });
+    // Hono seamlessly handles the Cloudflare Worker fetch event
+    return app.fetch(request, env, ctx);
+  }
+};
+app.get('/', (c) => {
+  return c.json({
+    status: 'OK',
+    service: 'BloodLink API',
+    message: 'Backend is running on Cloudflare Workers'
+  });
+});

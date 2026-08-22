@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../app';
-import crypto from 'crypto';
+
 import { isMedicalCertificateValid } from '../utils/businessRules';
 import { generateQrToken, generateIdentifier } from '../utils/securityUtils';
 
@@ -83,7 +83,7 @@ export const uploadIdentityDocument = async (req: Request, res: Response): Promi
     }
 
     // Upload to Supabase Storage
-    const uniqueSuffix = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+    const uniqueSuffix = globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 16);
     const ext = file.originalname.split('.').pop();
     const filePath = `${appointmentId}-${uniqueSuffix}.${ext}`;
     
@@ -129,7 +129,7 @@ export const uploadMedicalCertificate = async (req: Request, res: Response): Pro
     }
 
     // Upload to Supabase Storage
-    const uniqueSuffix = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+    const uniqueSuffix = globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 16);
     const ext = file.originalname.split('.').pop();
     const filePath = `${appointmentId}-${uniqueSuffix}.${ext}`;
     

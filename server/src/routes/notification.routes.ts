@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { getMyNotifications, markAsRead } from '../controllers/notification.controller';
 import { authenticate } from '../middlewares/auth.middleware';
 

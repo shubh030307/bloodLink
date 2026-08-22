@@ -26,7 +26,7 @@ export default function MainTabNavigator() {
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#dc2626',
+        tabBarActiveTintColor: '#EA0B0B',
         tabBarInactiveTintColor: '#6b7280',
         tabBarStyle: {
           backgroundColor: '#ffffff',
@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
   activeIndicator: {
     width: 24,
     height: 3,
-    backgroundColor: '#dc2626',
+    backgroundColor: '#EA0B0B',
     borderRadius: 2,
     marginTop: 4,
   }

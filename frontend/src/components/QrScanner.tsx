@@ -18,20 +18,25 @@ const QrScanner = ({ onScanSuccess }: QrScannerProps) => {
       const scanner = new Html5Qrcode("qr-reader");
       scannerRef.current = scanner;
       
-      await scanner.start(
-        { facingMode: "environment" },
-        { 
-           fps: 30, // Increased from 10 to 30 for much faster scanning
-           disableFlip: false // Allow scanning mirrored codes
-        },
-        (decodedText) => {
-           onScanSuccess(decodedText);
-           stopScanner();
-        },
-        () => {
-           // Ignore typical continuous scanning failures
-        }
-      );
+      const config = { 
+         fps: 30, 
+         disableFlip: false 
+      };
+      
+      const handleSuccess = (decodedText: string) => {
+         onScanSuccess(decodedText);
+         stopScanner();
+      };
+
+      try {
+        // Try back camera first (good for tablets/phones)
+        await scanner.start({ facingMode: "environment" }, config, handleSuccess, () => {});
+      } catch (envError: any) {
+        console.warn("Environment camera failed, falling back to user camera:", envError);
+        // Fallback to front camera (essential for desktop webcams)
+        await scanner.start({ facingMode: "user" }, config, handleSuccess, () => {});
+      }
+      
       setScanning(true);
     } catch (err: any) {
       console.error("Camera start error:", err);
@@ -43,7 +48,7 @@ const QrScanner = ({ onScanSuccess }: QrScannerProps) => {
       
       if (err?.name === 'NotAllowedError') {
          setError('Camera access denied. Please click the camera icon in your address bar to allow permissions.');
-      } else if (err?.name === 'NotFoundError') {
+      } else if (err?.name === 'NotFoundError' || err?.name === 'OverconstrainedError') {
          setError('No camera found on this device.');
       } else {
          setError(err?.message || 'Failed to start camera. Ensure you are on localhost or HTTPS.');

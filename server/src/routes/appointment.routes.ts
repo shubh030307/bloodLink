@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { bookAppointment, getMyAppointments, cancelAppointment, getAvailableSlots, getAllBloodBanks, staffBookAppointment, getAllAppointments, getAppointmentQr } from '../controllers/appointment.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

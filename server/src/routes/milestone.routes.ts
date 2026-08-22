@@ -1,8 +1,8 @@
-import express from 'express';
+import { Router } from '../utils/expressRouter';
 import { getDonorMilestones, claimReward, getAdminRewards, updateRewardStock } from '../controllers/milestone.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
-const router = express.Router();
+const router = Router();
 
 // Donor routes
 router.get('/donor', authenticate, authorize(['Donor']), getDonorMilestones);

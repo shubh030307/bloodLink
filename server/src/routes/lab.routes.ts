@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import * as labController from '../controllers/lab.controller';
 
@@ -6,7 +6,7 @@ const router = Router();
 
 // Apply auth middleware to all routes
 router.use(authenticate);
-router.use(authorize(['LAB_TECHNICIAN', 'ADMIN']));
+router.use(authorize(['LabTechnician', 'Admin']));
 
 // Dashboard and Queue
 router.get('/dashboard', labController.getDashboardStats);

@@ -137,8 +137,8 @@ const DonorAppointments = () => {
             >
               <XCircle className="w-8 h-8" />
             </button>
-            <div className="bg-white dark:bg-card p-6 rounded-2xl shadow-2xl transform scale-100 animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-border">
-              <QRCode value={qrToken} size={250} />
+            <div className="bg-white p-6 rounded-2xl shadow-2xl transform scale-100 animate-in zoom-in-95 duration-200 border border-gray-100">
+              <QRCode value={qrToken} size={250} bgColor="#FFFFFF" fgColor="#000000" />
             </div>
             <p className="mt-6 text-xl font-bold text-gray-800 dark:text-foreground">Scan at reception</p>
             <p className={`mt-2 text-sm font-medium ${expiryText === 'Expired' ? 'text-red-500' : 'text-gray-500 dark:text-muted-foreground'}`}>{expiryText}</p>

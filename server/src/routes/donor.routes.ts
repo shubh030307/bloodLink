@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { getDonorProfile, getDonorHistory, getAllDonors, updateDonorProfile, getDonorEligibility, submitFeedback, getDonorMilestones } from '../controllers/donor.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

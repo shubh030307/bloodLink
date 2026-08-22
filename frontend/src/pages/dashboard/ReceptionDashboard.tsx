@@ -551,8 +551,8 @@ const ReceptionDashboard = () => {
                       </div>
                    </div>
                    <div className="flex flex-col items-end text-right">
-                      <div className="bg-white dark:bg-card p-2 rounded-lg border shadow-sm">
-                        <QRCodeSVG value={assignedQueue.visit?.visitQrToken || "PENDING"} size={70} level="H" />
+                      <div className="bg-white p-2 rounded-lg border shadow-sm inline-block">
+                        <QRCodeSVG value={assignedQueue.visit?.visitQrToken || "PENDING"} size={70} level="H" bgColor="#FFFFFF" fgColor="#000000" />
                       </div>
                       <p className="text-xs font-mono text-gray-500 dark:text-muted-foreground mt-1">{assignedQueue.queueNumber}</p>
                    </div>

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { 
   scanAppointmentQr, 
   checkInDonor, 

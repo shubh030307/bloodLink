@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { getAdminStats } from '../controllers/dashboard.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

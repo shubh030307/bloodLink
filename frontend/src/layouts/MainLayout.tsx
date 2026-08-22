@@ -234,6 +234,15 @@ const MainLayout = () => {
               <Bell className="w-5 h-5" />
               <span className="absolute top-2 right-2 w-2 h-2 bg-destructive/100 rounded-full ring-2 ring-white dark:ring-slate-800 animate-pulse"></span>
             </button>
+            
+            {/* Mobile Logout Button */}
+            <button 
+              onClick={logout}
+              className="lg:hidden p-2.5 sm:p-3 bg-gray-100 sm:bg-white dark:bg-muted sm:dark:bg-card rounded-full shadow-none sm:shadow-sm border-none sm:border sm:border-gray-100 dark:border-border text-gray-600 dark:text-muted-foreground hover:text-destructive dark:hover:text-destructive transition-colors shrink-0"
+              title="Logout"
+            >
+              <LogOut className="w-5 h-5" />
+            </button>
 
             <div className="hidden md:flex items-center space-x-2 bg-white dark:bg-card px-4 py-2.5 rounded-full shadow-sm border border-gray-100 dark:border-border shrink-0">
               <Calendar className="w-5 h-5 text-gray-400 dark:text-muted-foreground" />

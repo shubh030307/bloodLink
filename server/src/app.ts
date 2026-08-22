@@ -1,11 +1,7 @@
-import expressServer from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
 import { v4 as uuidv4 } from 'uuid';
 import { PrismaClient } from '@prisma/client';
-// Cloudflare edge imports (will be used if adapter-pg is active)
 import { Pool } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 
@@ -27,45 +23,17 @@ import milestoneRoutes from './routes/milestone.routes';
 import campRoutes from './routes/camp.routes';
 import reportRoutes from './routes/report.routes';
 
-dotenv.config();
+import { AsyncLocalStorage } from 'node:async_hooks';
 
-let prismaInstance: PrismaClient | null = null;
-let currentPool: Pool | null = null;
-let activeRequests = 0;
-
-const getPrisma = () => {
-  if (!prismaInstance) {
-    const isCloudflare = process.env.CLOUDFLARE_WORKER === 'true';
-    
-    if (isCloudflare) {
-      // Use Edge-compatible PG driver
-      const connectionString = process.env.DATABASE_URL!;
-      currentPool = new Pool({ 
-        connectionString,
-        max: 5,
-        idleTimeoutMillis: 1000, 
-        connectionTimeoutMillis: 5000,
-        allowExitOnIdle: true
-      });
-      const adapter = new PrismaPg(currentPool);
-      prismaInstance = new PrismaClient({ adapter });
-    } else {
-      // Use standard Prisma engine for local Node.js
-      prismaInstance = new PrismaClient({
-        datasources: {
-          db: {
-            url: process.env.DATABASE_URL
-          }
-        }
-      });
-    }
-  }
-  return prismaInstance;
-};
+const als = new AsyncLocalStorage<PrismaClient>();
 
 export const prisma = new Proxy({} as PrismaClient, {
   get(target, prop) {
-    const p = getPrisma();
+    const p = als.getStore();
+    if (!p) {
+      // Fallback for readiness check or outside context
+      return undefined;
+    }
     const value = (p as any)[prop];
     if (typeof value === 'function') {
       return value.bind(p);
@@ -74,91 +42,103 @@ export const prisma = new Proxy({} as PrismaClient, {
   }
 });
 
-export const app = expressServer();
+export const app = new Hono();
 
-// Cloudflare Workers Connection Pool Cleanup
-// (Removed: Destroying the pool on every request causes massive latency.
-// The Pool configuration already uses allowExitOnIdle: true, which properly
-// handles hanging TCP sockets without needing manual destruction.)
-
-// Security Middlewares
-app.use(helmet());
-
-let apiLimiterInstance: any = null;
-const apiLimiter = (req: any, res: any, next: any) => {
-  if (typeof navigator !== 'undefined' && navigator.userAgent === 'Cloudflare-Workers') {
-    return next();
-  }
-  if (!apiLimiterInstance) {
-    apiLimiterInstance = rateLimit({
-      windowMs: 15 * 60 * 1000,
-      max: 100,
-      message: 'Too many requests from this IP, please try again after 15 minutes',
-      standardHeaders: true,
-      legacyHeaders: false,
-    });
-  }
-  return apiLimiterInstance(req, res, next);
-};
-
-app.use('/api/', apiLimiter);
-
-app.use(cors({
-  origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL : '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+// CORS Middleware
+app.use('*', cors({
+  origin: process.env.NODE_ENV === 'production' && process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL
+    : '*',
+  allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
 }));
-app.use(expressServer.json({ limit: '10mb' }));
 
-// Correlation ID Middleware
-app.use((req, res, next) => {
-  const reqId = req.headers['x-request-id'] || uuidv4();
-  req.headers['x-request-id'] = reqId;
-  res.setHeader('X-Request-ID', reqId as string);
-  next();
+// Prisma Request-Scoped Context Middleware
+app.use('*', async (c, next) => {
+  // Use a temporary standalone Prisma connection for this request
+  const connectionString = process.env.DATABASE_URL!;
+  const pool = new Pool({
+    connectionString,
+    max: 1, // Only 1 connection needed for the request
+    idleTimeoutMillis: 0,
+    connectionTimeoutMillis: 10000
+  });
+  const adapter = new PrismaPg(pool);
+  const prismaClient = new PrismaClient({ adapter });
+
+  await als.run(prismaClient, async () => {
+    await next();
+  });
+
+  // Clean up socket to prevent hangs on Cloudflare Workers
+  c.executionCtx.waitUntil(
+    prismaClient.$disconnect().then(() => pool.end())
+  );
 });
 
-// We inject req.io here as a fallback so it doesn't crash existing code, 
-// though standard Socket.IO emitting won't work in CF Workers.
-app.use((req: any, res, next) => {
-  // io is only available in server.ts (Node environment).
-  req.io = null; 
-  next();
+// Correlation ID Middleware
+app.use('*', async (c, next) => {
+  const reqId = c.req.header('x-request-id') || uuidv4();
+  c.header('X-Request-ID', reqId);
+  await next();
 });
 
 // Liveness endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Blood Bank API is alive' });
+app.get('/health', (c) => {
+  return c.json({ status: 'OK', message: 'Blood Bank API is alive (Cloudflare Worker)' }, 200);
 });
 
 // Readiness endpoint
-app.get('/ready', async (req, res) => {
+app.get('/ready', async (c) => {
   try {
     await prisma.$queryRaw`SELECT 1`;
-    res.status(200).json({ status: 'READY', message: 'Database connection established' });
+
+    return c.json(
+      {
+        status: 'READY',
+        message: 'Database connection established'
+      },
+      200
+    );
   } catch (error) {
-    res.status(503).json({ status: 'UNAVAILABLE', message: 'Database unreachable' });
+    console.error('DATABASE READY CHECK ERROR:', error);
+
+    return c.json(
+      {
+        status: 'UNAVAILABLE',
+        message: 'Database unreachable'
+      },
+      503
+    );
+  }
+});
+app.get('/test-db', async (c) => {
+  try {
+    const user = await prisma.user.findFirst();
+    return c.json({ success: true, user: user?.email }, 200);
+  } catch (error) {
+    return c.json({ error: String(error) }, 500);
   }
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/donors', donorRoutes);
-app.use('/api/inventory', inventoryRoutes);
-app.use('/api/hospitals', hospitalRoutes);
-app.use('/api/requests', requestRoutes);
-app.use('/api/appointments', appointmentRoutes);
-app.use('/api/collection', collectionRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/reception', receptionRoutes);
-app.use('/api/lab', labRoutes);
-app.use('/api/audit', auditRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/certificates', certificateRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/milestones', milestoneRoutes);
-app.use('/api/camps', campRoutes);
-app.use('/api/reports', reportRoutes);
+app.route('/api/auth', authRoutes.honoApp);
+app.route('/api/donors', donorRoutes.honoApp);
+app.route('/api/inventory', inventoryRoutes.honoApp);
+app.route('/api/hospitals', hospitalRoutes.honoApp);
+app.route('/api/requests', requestRoutes.honoApp);
+app.route('/api/appointments', appointmentRoutes.honoApp);
+app.route('/api/collection', collectionRoutes.honoApp);
+app.route('/api/dashboard', dashboardRoutes.honoApp);
+app.route('/api/reception', receptionRoutes.honoApp);
+app.route('/api/lab', labRoutes.honoApp);
+app.route('/api/audit', auditRoutes.honoApp);
+app.route('/api/notifications', notificationRoutes.honoApp);
+app.route('/api/certificates', certificateRoutes.honoApp);
+app.route('/api/staff', staffRoutes.honoApp);
+app.route('/api/milestones', milestoneRoutes.honoApp);
+app.route('/api/camps', campRoutes.honoApp);
+app.route('/api/reports', reportRoutes.honoApp);
 
-app.get('/api/documents/download/:filename', async (req: any, res) => {
-  res.status(403).json({ error: 'Secure download requires authenticated endpoint.' });
+app.get('/api/documents/download/:filename', async (c) => {
+  return c.json({ error: 'Secure download requires authenticated endpoint.' }, 403);
 });

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../app';
-import crypto from 'crypto';
+
 
 export const getMyCertificates = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -56,7 +56,7 @@ export const generateCertificate = async (req: Request, res: Response): Promise<
     });
 
     if (!certificate) {
-      const certificateNumber = `CERT-DON-${new Date().getFullYear()}-${crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase()}`;
+      const certificateNumber = `CERT-DON-${new Date().getFullYear()}-${globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase()}`;
       
       const { generateStandardCertificatePdf } = await import('../utils/certificateGenerator');
       const certificateUrl = await generateStandardCertificatePdf({
@@ -114,7 +114,7 @@ export const generateMilestoneCertificate = async (req: Request, res: Response):
     });
 
     if (!existing) {
-      const certNumber = `CERT-MIL-${crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase()}`;
+      const certNumber = `CERT-MIL-${globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 8).toUpperCase()}`;
       
       const { generateMilestoneCertificatePdf } = await import('../utils/certificateGenerator');
       const certificateUrl = await generateMilestoneCertificatePdf({

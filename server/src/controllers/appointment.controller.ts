@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { prisma } from '../app';
-import crypto from 'crypto';
+
 import { generateIdentifier, generateQrToken } from '../utils/securityUtils';
 
 export const bookAppointment = async (req: Request, res: Response): Promise<any> => {

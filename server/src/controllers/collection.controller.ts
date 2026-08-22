@@ -193,7 +193,7 @@ export const uploadCollectionForm = async (req: AuthRequest, res: Response): Pro
     }
 
     // Upload to Supabase Storage
-    const uniqueSuffix = crypto.randomUUID().replace(/-/g, '').substring(0, 16);
+    const uniqueSuffix = globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 16);
     const ext = req.file.originalname.split('.').pop();
     const filePath = `collection-${collectionRecordId}-${uniqueSuffix}.${ext}`;
     

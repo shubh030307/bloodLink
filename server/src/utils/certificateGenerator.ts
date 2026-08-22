@@ -1,6 +1,5 @@
-import PDFDocument from 'pdfkit';
+import { PDFDocument, StandardFonts, rgb, degrees } from 'pdf-lib';
 import { uploadBufferToSupabase } from './supabaseClient';
-import crypto from 'crypto';
 
 interface StandardCertificateData {
   certificateNumber: string;
@@ -17,153 +16,154 @@ interface MilestoneCertificateData {
   date: Date;
 }
 
-const drawBorders = (doc: typeof PDFDocument) => {
+const drawBorders = (page: any, width: number, height: number, outerColor: any) => {
   // Outer Border
-  doc.rect(30, 30, doc.page.width - 60, doc.page.height - 60)
-     .lineWidth(3)
-     .stroke('#C8102E');
+  page.drawRectangle({
+    x: 30, y: 30,
+    width: width - 60, height: height - 60,
+    borderColor: outerColor,
+    borderWidth: 3
+  });
      
   // Inner Border
-  doc.rect(40, 40, doc.page.width - 80, doc.page.height - 80)
-     .lineWidth(1)
-     .stroke('#111827');
+  page.drawRectangle({
+    x: 40, y: 40,
+    width: width - 80, height: height - 80,
+    borderColor: rgb(0.06, 0.09, 0.15), // #111827
+    borderWidth: 1
+  });
 };
 
-const drawWatermark = (doc: typeof PDFDocument) => {
-  doc.save();
-  doc.fontSize(80)
-     .fillOpacity(0.04)
-     .text('BLOODLINK', 0, doc.page.height / 2 - 40, { align: 'center', width: doc.page.width });
-  doc.restore();
+const drawWatermark = async (pdfDoc: PDFDocument, page: any, width: number, height: number, font: any) => {
+  page.drawText('BLOODLINK', {
+    x: width / 2 - 250,
+    y: height / 2,
+    size: 80,
+    font,
+    color: rgb(0.8, 0.8, 0.8),
+    opacity: 0.2,
+    rotate: degrees(45)
+  });
 };
 
 export const generateStandardCertificatePdf = async (data: StandardCertificateData): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({ margin: 50, size: 'A4', layout: 'landscape' });
-      const buffers: Buffer[] = [];
-      
-      doc.on('data', buffers.push.bind(buffers));
-      doc.on('end', async () => {
-        try {
-          const pdfData = Buffer.concat(buffers);
-          // Wait, WebCrypto in Cloudflare doesn't have crypto.randomBytes? 
-          // We can use crypto.randomUUID() since we fixed it earlier.
-          const uniqueSuffix = crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '').substring(0, 8) : (crypto as any).randomBytes(4).toString('hex');
-          const fileName = `${data.certificateNumber}-${uniqueSuffix}.pdf`;
-          
-          const publicUrl = await uploadBufferToSupabase('reports', `certificates/${fileName}`, pdfData, 'application/pdf');
-          resolve(publicUrl);
-        } catch (error) {
-          reject(error);
-        }
-      });
-      doc.on('error', reject);
+  const pdfDoc = await PDFDocument.create();
+  const timesRomanFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const timesBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const timesObliqueFont = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+  
+  // Landscape A4 (841.89 x 595.28 points)
+  const page = pdfDoc.addPage([841.89, 595.28]);
+  const { width, height } = page.getSize();
+  
+  const drawCenterText = (text: string, size: number, font: any, y: number, color = rgb(0,0,0)) => {
+    const textWidth = font.widthOfTextAtSize(text, size);
+    page.drawText(text, { x: (width - textWidth) / 2, y, size, font, color });
+  };
 
-      drawBorders(doc);
-      drawWatermark(doc);
+  drawBorders(page, width, height, rgb(0.78, 0.06, 0.18)); // #C8102E
+  await drawWatermark(pdfDoc, page, width, height, timesBoldFont);
 
-      doc.moveDown(2);
-      doc.fontSize(36).font('Helvetica-Bold').fillColor('#C8102E').text('CERTIFICATE OF APPRECIATION', { align: 'center' });
-      doc.moveDown(1);
-      
-      doc.fontSize(16).fillColor('#111827').font('Helvetica-Oblique').text('This certificate is proudly presented to', { align: 'center' });
-      doc.moveDown(1);
-      
-      doc.fontSize(32).font('Helvetica-Bold').fillColor('#111827').text(data.donorName.toUpperCase(), { align: 'center' });
-      doc.moveDown(1);
+  let currentY = height - 100;
+  
+  drawCenterText('CERTIFICATE OF APPRECIATION', 36, timesBoldFont, currentY, rgb(0.78, 0.06, 0.18));
+  currentY -= 50;
+  
+  drawCenterText('This certificate is proudly presented to', 16, timesObliqueFont, currentY, rgb(0.06, 0.09, 0.15));
+  currentY -= 60;
+  
+  drawCenterText(data.donorName.toUpperCase(), 32, timesBoldFont, currentY, rgb(0.06, 0.09, 0.15));
+  currentY -= 50;
 
-      doc.fontSize(16).font('Helvetica').text(`In grateful recognition of your life-saving gift of Blood (Group: ${data.bloodGroup}).`, { align: 'center' });
-      doc.moveDown(0.5);
-      doc.fontSize(14).text('Your generosity and commitment to helping others in their time of need is deeply appreciated.', { align: 'center' });
-      doc.moveDown(3);
+  drawCenterText(`In grateful recognition of your life-saving gift of Blood (Group: ${data.bloodGroup}).`, 16, timesRomanFont, currentY);
+  currentY -= 30;
+  
+  drawCenterText('Your generosity and commitment to helping others in their time of need is deeply appreciated.', 14, timesRomanFont, currentY);
+  currentY -= 100;
 
-      // Signatures
-      const signatureY = doc.y;
-      doc.fontSize(12).font('Helvetica').fillColor('#111827');
-      doc.text(new Date(data.date).toLocaleDateString(), 100, signatureY);
-      doc.text('___________________', 100, signatureY + 20);
-      doc.text('Date', 130, signatureY + 40);
+  // Signatures
+  page.drawText(new Date(data.date).toLocaleDateString(), { x: 100, y: currentY, size: 12, font: timesRomanFont, color: rgb(0.06, 0.09, 0.15) });
+  page.drawText('___________________', { x: 100, y: currentY - 20, size: 12, font: timesRomanFont });
+  page.drawText('Date', { x: 130, y: currentY - 40, size: 12, font: timesRomanFont });
 
-      doc.text('BloodLink Organization', doc.page.width - 250, signatureY, { align: 'right' });
-      doc.text('___________________', doc.page.width - 250, signatureY + 20, { align: 'right' });
-      doc.text('Authorized Signature', doc.page.width - 250, signatureY + 40, { align: 'right' });
+  page.drawText('BloodLink Organization', { x: width - 250, y: currentY, size: 12, font: timesRomanFont });
+  page.drawText('___________________', { x: width - 250, y: currentY - 20, size: 12, font: timesRomanFont });
+  page.drawText('Authorized Signature', { x: width - 230, y: currentY - 40, size: 12, font: timesRomanFont });
 
-      // Cert Number
-      doc.fontSize(10).fillColor('#6B7280').text(`Certificate No: ${data.certificateNumber}`, 40, doc.page.height - 30);
+  // Cert Number
+  page.drawText(`Certificate No: ${data.certificateNumber}`, { x: 40, y: 40, size: 10, font: timesRomanFont, color: rgb(0.42, 0.45, 0.5) });
 
-      doc.end();
-
-    } catch (error) {
-      reject(error);
-    }
-  });
+  const pdfBytes = await pdfDoc.save();
+  const pdfBuffer = Buffer.from(pdfBytes);
+  
+  const uniqueSuffix = globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 8);
+  const fileName = `${data.certificateNumber}-${uniqueSuffix}.pdf`;
+  
+  return await uploadBufferToSupabase('reports', `certificates/${fileName}`, pdfBuffer, 'application/pdf');
 };
 
 export const generateMilestoneCertificatePdf = async (data: MilestoneCertificateData): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    try {
-      const doc = new PDFDocument({ margin: 50, size: 'A4', layout: 'landscape' });
-      const buffers: Buffer[] = [];
-      
-      doc.on('data', buffers.push.bind(buffers));
-      doc.on('end', async () => {
-        try {
-          const pdfData = Buffer.concat(buffers);
-          const uniqueSuffix = crypto.randomUUID ? crypto.randomUUID().replace(/-/g, '').substring(0, 8) : (crypto as any).randomBytes(4).toString('hex');
-          const fileName = `${data.certificateNumber}-${uniqueSuffix}.pdf`;
-          
-          const publicUrl = await uploadBufferToSupabase('reports', `certificates/${fileName}`, pdfData, 'application/pdf');
-          resolve(publicUrl);
-        } catch (error) {
-          reject(error);
-        }
-      });
-      doc.on('error', reject);
+  const pdfDoc = await PDFDocument.create();
+  const timesRomanFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const timesBoldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const timesObliqueFont = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
+  
+  const page = pdfDoc.addPage([841.89, 595.28]);
+  const { width, height } = page.getSize();
+  
+  const drawCenterText = (text: string, size: number, font: any, y: number, color = rgb(0,0,0)) => {
+    const textWidth = font.widthOfTextAtSize(text, size);
+    page.drawText(text, { x: (width - textWidth) / 2, y, size, font, color });
+  };
 
-      drawBorders(doc);
-      
-      // Special Gold/Milestone Border Effect
-      doc.rect(35, 35, doc.page.width - 70, doc.page.height - 70).lineWidth(1).stroke('#F59E0B');
-
-      drawWatermark(doc);
-
-      doc.moveDown(2);
-      doc.fontSize(36).font('Helvetica-Bold').fillColor('#F59E0B').text('MILESTONE ACHIEVEMENT', { align: 'center' });
-      doc.moveDown(1);
-      
-      doc.fontSize(16).fillColor('#111827').font('Helvetica-Oblique').text('This honors', { align: 'center' });
-      doc.moveDown(1);
-      
-      doc.fontSize(32).font('Helvetica-Bold').fillColor('#111827').text(data.donorName.toUpperCase(), { align: 'center' });
-      doc.moveDown(1);
-
-      doc.fontSize(16).font('Helvetica-Bold').fillColor('#C8102E').text(`Award: ${data.milestoneName}`, { align: 'center' });
-      doc.moveDown(0.5);
-
-      doc.fontSize(14).font('Helvetica').fillColor('#111827').text(`For completing an incredible ${data.donationCount} life-saving donations.`, { align: 'center' });
-      doc.moveDown(0.5);
-      doc.text('Your extraordinary dedication to the community sets a standard of excellence for us all.', { align: 'center' });
-      doc.moveDown(2);
-
-      // Signatures
-      const signatureY = doc.y;
-      doc.fontSize(12).font('Helvetica').fillColor('#111827');
-      doc.text(new Date(data.date).toLocaleDateString(), 100, signatureY);
-      doc.text('___________________', 100, signatureY + 20);
-      doc.text('Date', 130, signatureY + 40);
-
-      doc.text('BloodLink Directorship', doc.page.width - 250, signatureY, { align: 'right' });
-      doc.text('___________________', doc.page.width - 250, signatureY + 20, { align: 'right' });
-      doc.text('Authorized Signature', doc.page.width - 250, signatureY + 40, { align: 'right' });
-
-      // Cert Number
-      doc.fontSize(10).fillColor('#6B7280').text(`Certificate No: ${data.certificateNumber}`, 40, doc.page.height - 30);
-
-      doc.end();
-
-    } catch (error) {
-      reject(error);
-    }
+  drawBorders(page, width, height, rgb(0.96, 0.62, 0.04)); // #F59E0B
+  
+  // Extra gold border
+  page.drawRectangle({
+    x: 35, y: 35,
+    width: width - 70, height: height - 70,
+    borderColor: rgb(0.96, 0.62, 0.04),
+    borderWidth: 1
   });
+
+  await drawWatermark(pdfDoc, page, width, height, timesBoldFont);
+
+  let currentY = height - 100;
+  
+  drawCenterText('MILESTONE ACHIEVEMENT', 36, timesBoldFont, currentY, rgb(0.96, 0.62, 0.04));
+  currentY -= 50;
+  
+  drawCenterText('This honors', 16, timesObliqueFont, currentY, rgb(0.06, 0.09, 0.15));
+  currentY -= 60;
+  
+  drawCenterText(data.donorName.toUpperCase(), 32, timesBoldFont, currentY, rgb(0.06, 0.09, 0.15));
+  currentY -= 50;
+
+  drawCenterText(`Award: ${data.milestoneName}`, 16, timesBoldFont, currentY, rgb(0.78, 0.06, 0.18));
+  currentY -= 30;
+  
+  drawCenterText(`For completing an incredible ${data.donationCount} life-saving donations.`, 14, timesRomanFont, currentY, rgb(0.06, 0.09, 0.15));
+  currentY -= 20;
+  drawCenterText('Your extraordinary dedication to the community sets a standard of excellence for us all.', 14, timesRomanFont, currentY, rgb(0.06, 0.09, 0.15));
+  currentY -= 80;
+
+  // Signatures
+  page.drawText(new Date(data.date).toLocaleDateString(), { x: 100, y: currentY, size: 12, font: timesRomanFont, color: rgb(0.06, 0.09, 0.15) });
+  page.drawText('___________________', { x: 100, y: currentY - 20, size: 12, font: timesRomanFont });
+  page.drawText('Date', { x: 130, y: currentY - 40, size: 12, font: timesRomanFont });
+
+  page.drawText('BloodLink Directorship', { x: width - 250, y: currentY, size: 12, font: timesRomanFont });
+  page.drawText('___________________', { x: width - 250, y: currentY - 20, size: 12, font: timesRomanFont });
+  page.drawText('Authorized Signature', { x: width - 240, y: currentY - 40, size: 12, font: timesRomanFont });
+
+  // Cert Number
+  page.drawText(`Certificate No: ${data.certificateNumber}`, { x: 40, y: 40, size: 10, font: timesRomanFont, color: rgb(0.42, 0.45, 0.5) });
+
+  const pdfBytes = await pdfDoc.save();
+  const pdfBuffer = Buffer.from(pdfBytes);
+  
+  const uniqueSuffix = globalThis.crypto.randomUUID().replace(/-/g, '').substring(0, 8);
+  const fileName = `${data.certificateNumber}-${uniqueSuffix}.pdf`;
+  
+  return await uploadBufferToSupabase('reports', `certificates/${fileName}`, pdfBuffer, 'application/pdf');
 };

@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { createCamp, getCamps, getCampById, updateCampStatus } from '../controllers/camp.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

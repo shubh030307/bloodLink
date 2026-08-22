@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { getInventory, getInventoryStats } from '../controllers/inventory.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 

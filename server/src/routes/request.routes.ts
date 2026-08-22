@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from '../utils/expressRouter';
 import { submitRequest, getAllRequests, getHospitalRequests, processRequest, issueBlood } from '../controllers/request.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
